@@ -5,7 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell,
 } from "recharts";
-import { TrendingUp, DollarSign, Users, Activity } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Activity, Target } from "lucide-react";
 
 const revenueData = [
   { month: "Set", receita: 45000, meta: 40000 },
@@ -38,6 +38,45 @@ const churnReasons = [
   { reason: "Lesão/Saúde", pct: 18 },
   { reason: "Falta de motivação", pct: 15 },
   { reason: "Outros", pct: 11 },
+];
+
+// Marketing data from anamnese
+const objectiveData = [
+  { name: "Ganhar massa", value: 38, color: "hsl(0,100%,27%)" },
+  { name: "Perder peso", value: 28, color: "hsl(43,76%,53%)" },
+  { name: "Performance", value: 20, color: "hsl(210,70%,50%)" },
+  { name: "Saúde geral", value: 14, color: "hsl(140,60%,40%)" },
+];
+
+const ageData = [
+  { faixa: "18-24", total: 420 },
+  { faixa: "25-34", total: 980 },
+  { faixa: "35-44", total: 760 },
+  { faixa: "45-54", total: 410 },
+  { faixa: "55+", total: 180 },
+];
+
+const experienceData = [
+  { name: "Iniciante", value: 45, color: "hsl(43,76%,53%)" },
+  { name: "Intermediário", value: 35, color: "hsl(210,70%,50%)" },
+  { name: "Avançado", value: 20, color: "hsl(0,100%,27%)" },
+];
+
+const restricoesData = [
+  { restricao: "Sem Lactose", pct: 24 },
+  { restricao: "Sem Glúten", pct: 18 },
+  { restricao: "Vegetariano", pct: 12 },
+  { restricao: "Low Carb", pct: 10 },
+  { restricao: "Vegano", pct: 6 },
+  { restricao: "Sem restrição", pct: 30 },
+];
+
+const desistenciaData = [
+  { motivo: "Falta de tempo", pct: 34 },
+  { motivo: "Não ver resultados", pct: 26 },
+  { motivo: "Rotina pesada", pct: 18 },
+  { motivo: "Falta de motivação", pct: 14 },
+  { motivo: "Problemas financeiros", pct: 8 },
 ];
 
 const AdminRelatorios = () => {
@@ -79,6 +118,7 @@ const AdminRelatorios = () => {
           <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
           <TabsTrigger value="retencao">Retenção</TabsTrigger>
           <TabsTrigger value="aquisicao">Aquisição</TabsTrigger>
+          <TabsTrigger value="marketing">Marketing / Qualificação</TabsTrigger>
         </TabsList>
 
         <TabsContent value="financeiro">
@@ -119,7 +159,6 @@ const AdminRelatorios = () => {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-
             <Card className="bg-card border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Motivos de Churn</CardTitle>
@@ -150,9 +189,7 @@ const AdminRelatorios = () => {
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie data={acquisitionData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value">
-                    {acquisitionData.map((e, i) => (
-                      <Cell key={i} fill={e.color} />
-                    ))}
+                    {acquisitionData.map((e, i) => (<Cell key={i} fill={e.color} />))}
                   </Pie>
                   <Tooltip {...tooltipStyle} />
                 </PieChart>
@@ -166,6 +203,125 @@ const AdminRelatorios = () => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* NEW: Marketing / Qualificação tab */}
+        <TabsContent value="marketing" className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { label: "Leads Qualificados", value: "1,847", change: "+22%" },
+              { label: "Objetivo #1", value: "Ganhar Massa", change: "38%" },
+              { label: "Faixa Etária #1", value: "25-34 anos", change: "35%" },
+              { label: "Iniciantes", value: "45%", change: "do total" },
+            ].map((k) => (
+              <Card key={k.label} className="bg-card border-border">
+                <CardContent className="p-4">
+                  <Target size={16} className="text-muted-foreground mb-2" />
+                  <p className="text-lg font-bold text-foreground">{k.value}</p>
+                  <p className="text-xs text-muted-foreground">{k.label}</p>
+                  <span className="text-xs text-emerald-400">{k.change}</span>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Objectives pie */}
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Distribuição de Objetivos</CardTitle></CardHeader>
+              <CardContent className="flex flex-col items-center gap-4">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={objectiveData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value">
+                      {objectiveData.map((e, i) => (<Cell key={i} fill={e.color} />))}
+                    </Pie>
+                    <Tooltip {...tooltipStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {objectiveData.map((o) => (
+                    <div key={o.name} className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: o.color }} />
+                      <span className="text-xs text-foreground">{o.name} ({o.value}%)</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Age distribution */}
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Faixas Etárias</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={ageData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,16%)" />
+                    <XAxis dataKey="faixa" stroke="hsl(43,10%,55%)" fontSize={12} />
+                    <YAxis stroke="hsl(43,10%,55%)" fontSize={12} />
+                    <Tooltip {...tooltipStyle} />
+                    <Bar dataKey="total" fill="hsl(43,76%,53%)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Experience level pie */}
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Nível de Experiência</CardTitle></CardHeader>
+              <CardContent className="flex flex-col items-center gap-4">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={experienceData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} dataKey="value">
+                      {experienceData.map((e, i) => (<Cell key={i} fill={e.color} />))}
+                    </Pie>
+                    <Tooltip {...tooltipStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {experienceData.map((o) => (
+                    <div key={o.name} className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: o.color }} />
+                      <span className="text-xs text-foreground">{o.name} ({o.value}%)</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Dietary restrictions */}
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Restrições Alimentares</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                {restricoesData.map((r) => (
+                  <div key={r.restricao} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">{r.restricao}</span>
+                      <span className="text-foreground font-medium">{r.pct}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-full rounded-full bg-accent" style={{ width: `${r.pct}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Desistência risks */}
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Motivos de Desistência (da anamnese)</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={desistenciaData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,16%)" />
+                  <XAxis type="number" stroke="hsl(43,10%,55%)" fontSize={12} tickFormatter={(v) => `${v}%`} />
+                  <YAxis type="category" dataKey="motivo" stroke="hsl(43,10%,55%)" fontSize={11} width={140} />
+                  <Tooltip {...tooltipStyle} />
+                  <Bar dataKey="pct" fill="hsl(0,100%,27%)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>

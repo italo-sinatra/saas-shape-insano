@@ -20,6 +20,12 @@ import AdminEspecialistas from "./pages/admin/AdminEspecialistas";
 import AdminComunicacao from "./pages/admin/AdminComunicacao";
 import AdminRelatorios from "./pages/admin/AdminRelatorios";
 import AdminConfig from "./pages/admin/AdminConfig";
+import EspecialistaLayout from "./components/especialista/EspecialistaLayout";
+import EspecialistaDashboard from "./pages/especialista/EspecialistaDashboard";
+import EspecialistaAlunos from "./pages/especialista/EspecialistaAlunos";
+import EspecialistaPlanos from "./pages/especialista/EspecialistaPlanos";
+import EspecialistaChat from "./pages/especialista/EspecialistaChat";
+import EspecialistaPerfil from "./pages/especialista/EspecialistaPerfil";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +34,9 @@ const AppRoutes = () => {
   const [onboarded, setOnboarded] = useState(false);
   const [dishonorMode, setDishonorMode] = useState(false);
 
-  const isAdmin = location.pathname.startsWith("/admin");
+  const isServiceRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/especialista");
 
-  if (!onboarded && !isAdmin) {
+  if (!onboarded && !isServiceRoute) {
     return <Onboarding onComplete={() => setOnboarded(true)} />;
   }
 
@@ -52,6 +58,13 @@ const AppRoutes = () => {
           <Route path="/admin/comunicacao" element={<AdminComunicacao />} />
           <Route path="/admin/relatorios" element={<AdminRelatorios />} />
           <Route path="/admin/config" element={<AdminConfig />} />
+        </Route>
+        <Route element={<EspecialistaLayout />}>
+          <Route path="/especialista" element={<EspecialistaDashboard />} />
+          <Route path="/especialista/alunos" element={<EspecialistaAlunos />} />
+          <Route path="/especialista/planos" element={<EspecialistaPlanos />} />
+          <Route path="/especialista/chat" element={<EspecialistaChat />} />
+          <Route path="/especialista/perfil" element={<EspecialistaPerfil />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
