@@ -56,7 +56,7 @@ const AdminDashboard = () => {
       {/* Header */}
       <div>
         <h1 className="font-cinzel text-2xl font-bold text-foreground">Quartel General</h1>
-        <p className="text-sm text-muted-foreground">Visão consolidada da plataforma INSANO</p>
+        <p className="text-sm text-muted-foreground">Visão consolidada da plataforma SHAPE INSANO</p>
       </div>
 
       {/* KPI Cards */}

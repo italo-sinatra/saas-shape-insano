@@ -52,7 +52,7 @@ const Dashboard = () => {
             <InsanoLogo size={36} />
             <div>
               <p className="text-muted-foreground text-xs">Ave, Guerreiro</p>
-              <h1 className="font-cinzel text-lg font-bold text-foreground">INSANO</h1>
+              <h1 className="font-cinzel text-lg font-bold text-foreground">SHAPE INSANO</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ const Dashboard = () => {
           <InsanoLogo size={44} />
           <div>
             <p className="text-muted-foreground text-xs">Ave, Guerreiro</p>
-            <h1 className="font-cinzel text-2xl font-bold text-foreground">INSANO</h1>
+            <h1 className="font-cinzel text-2xl font-bold text-foreground">SHAPE INSANO</h1>
           </div>
         </div>
         <div className="flex items-center gap-3">
