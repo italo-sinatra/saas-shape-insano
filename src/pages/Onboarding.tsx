@@ -177,23 +177,29 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
               <p className="text-foreground font-semibold">Dica: Deixe o celular filmando e tire print nas posições.</p>
             </div>
 
-            {/* Imagens de exemplo */}
+            {/* Frente e Costas */}
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground font-cinzel uppercase tracking-wider text-center">Exemplos de posição</p>
+              <img src={posturalFrenteCostas} alt="Exemplo frente e costas" className="w-full rounded-lg border border-border" />
               <div className="grid grid-cols-2 gap-3">
-                <img src={posturalFrenteCostas} alt="Exemplo frente e costas" className="w-full rounded-lg border border-border" />
-                <img src={posturalPerfil} alt="Exemplo perfil" className="w-full rounded-lg border border-border" />
+                <FileUploadField label="Frente" value={userData.foto_frente} onChange={(f) => u("foto_frente", f)} required />
+                <FileUploadField label="Costas" value={userData.foto_costas} onChange={(f) => u("foto_costas", f)} required />
               </div>
-              <img src={posturalTeste} alt="Teste de sentar e alcançar" className="w-full rounded-lg border border-border" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <FileUploadField label="Frente" value={userData.foto_frente} onChange={(f) => u("foto_frente", f)} required />
-              <FileUploadField label="Costas" value={userData.foto_costas} onChange={(f) => u("foto_costas", f)} required />
-              <FileUploadField label="Lado Direito" value={userData.foto_direito} onChange={(f) => u("foto_direito", f)} required />
-              <FileUploadField label="Lado Esquerdo" value={userData.foto_esquerdo} onChange={(f) => u("foto_esquerdo", f)} required />
+            {/* Perfil Direito e Esquerdo */}
+            <div className="space-y-3">
+              <img src={posturalPerfil} alt="Exemplo perfil" className="w-full rounded-lg border border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <FileUploadField label="Lado Direito" value={userData.foto_direito} onChange={(f) => u("foto_direito", f)} required />
+                <FileUploadField label="Lado Esquerdo" value={userData.foto_esquerdo} onChange={(f) => u("foto_esquerdo", f)} required />
+              </div>
             </div>
-            <FileUploadField label="Perfil (foto de lado)" value={userData.foto_perfil} onChange={(f) => u("foto_perfil", f)} required />
+
+            {/* Teste de sentar e alcançar */}
+            <div className="space-y-3">
+              <img src={posturalTeste} alt="Teste de sentar e alcançar" className="w-full rounded-lg border border-border" />
+              <FileUploadField label="Perfil (foto de lado)" value={userData.foto_perfil} onChange={(f) => u("foto_perfil", f)} required />
+            </div>
             <AdvanceButton />
           </motion.div>
         )}
