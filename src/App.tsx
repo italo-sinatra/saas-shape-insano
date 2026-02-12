@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import AppLayout from "./components/AppLayout";
 import AuthPage from "./pages/AuthPage";
 import Onboarding from "./pages/Onboarding";
@@ -27,54 +27,61 @@ import EspecialistaAlunos from "./pages/especialista/EspecialistaAlunos";
 import EspecialistaPlanos from "./pages/especialista/EspecialistaPlanos";
 import EspecialistaChat from "./pages/especialista/EspecialistaChat";
 import EspecialistaPerfil from "./pages/especialista/EspecialistaPerfil";
+import InsanoLogo from "./components/InsanoLogo";
 
 const queryClient = new QueryClient();
 
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="animate-pulse">
+      <InsanoLogo size={64} />
+    </div>
+  </div>
+);
+
 const AppRoutes = () => {
   const location = useLocation();
-  const [authenticated, setAuthenticated] = useState(false);
-  const [onboarded, setOnboarded] = useState(false);
-  const [dishonorMode, setDishonorMode] = useState(false);
+  const { user, loading, onboarded, setOnboarded } = useAuth();
 
   const isServiceRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/especialista");
 
-  if (!authenticated && !isServiceRoute) {
-    return <AuthPage onAuth={() => setAuthenticated(true)} />;
+  if (loading) return <LoadingScreen />;
+
+  if (!user && !isServiceRoute) {
+    return <AuthPage />;
   }
 
-  if (!onboarded && !isServiceRoute) {
+  if (user && !onboarded && !isServiceRoute) {
     return <Onboarding onComplete={() => setOnboarded(true)} />;
   }
 
   return (
-    <div className={dishonorMode ? "grayscale-mode" : ""}>
-      <Routes>
-        <Route element={<AppLayout dishonorMode={dishonorMode} setDishonorMode={setDishonorMode} />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/mentores" element={<Mentores />} />
-          <Route path="/coliseu" element={<Coliseu />} />
-          <Route path="/perfil" element={<Perfil />} />
-        </Route>
-        <Route path="/batalha" element={<BattleMode />} />
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/usuarios" element={<AdminUsuarios />} />
-          <Route path="/admin/planos" element={<AdminPlanos />} />
-          <Route path="/admin/especialistas" element={<AdminEspecialistas />} />
-          <Route path="/admin/comunicacao" element={<AdminComunicacao />} />
-          <Route path="/admin/relatorios" element={<AdminRelatorios />} />
-          <Route path="/admin/config" element={<AdminConfig />} />
-        </Route>
-        <Route element={<EspecialistaLayout />}>
-          <Route path="/especialista" element={<EspecialistaDashboard />} />
-          <Route path="/especialista/alunos" element={<EspecialistaAlunos />} />
-          <Route path="/especialista/planos" element={<EspecialistaPlanos />} />
-          <Route path="/especialista/chat" element={<EspecialistaChat />} />
-          <Route path="/especialista/perfil" element={<EspecialistaPerfil />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route element={<AppLayout dishonorMode={false} setDishonorMode={() => {}} />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/mentores" element={<Mentores />} />
+        <Route path="/coliseu" element={<Coliseu />} />
+        <Route path="/perfil" element={<Perfil />} />
+      </Route>
+      <Route path="/batalha" element={<BattleMode />} />
+      <Route element={<AdminLayout />}>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+        <Route path="/admin/planos" element={<AdminPlanos />} />
+        <Route path="/admin/especialistas" element={<AdminEspecialistas />} />
+        <Route path="/admin/comunicacao" element={<AdminComunicacao />} />
+        <Route path="/admin/relatorios" element={<AdminRelatorios />} />
+        <Route path="/admin/config" element={<AdminConfig />} />
+      </Route>
+      <Route element={<EspecialistaLayout />}>
+        <Route path="/especialista" element={<EspecialistaDashboard />} />
+        <Route path="/especialista/alunos" element={<EspecialistaAlunos />} />
+        <Route path="/especialista/planos" element={<EspecialistaPlanos />} />
+        <Route path="/especialista/chat" element={<EspecialistaChat />} />
+        <Route path="/especialista/perfil" element={<EspecialistaPerfil />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
@@ -84,7 +91,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

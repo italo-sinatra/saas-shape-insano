@@ -6,6 +6,8 @@ import ChamaDeVesta from "@/components/ChamaDeVesta";
 import InsanoLogo from "@/components/InsanoLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart, BarChart, Bar } from "recharts";
+import { useGamification } from "@/hooks/useGamification";
+import { useProfile } from "@/hooks/useProfile";
 
 const performanceData = [
   { day: "Seg", score: 65 },
@@ -119,9 +121,14 @@ const stats = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { data: gamification } = useGamification();
+  const { data: profile } = useProfile();
 
-  // Simulated streak — set to 0 to see "chama apagada" mode
-  const streak = 14;
+  const streak = gamification?.streak ?? 0;
+  const dracmas = gamification?.dracmas ?? 0;
+  const xp = gamification?.xp ?? 0;
+  const level = gamification?.level ?? 1;
+  const league = gamification?.league ?? "plebe";
   const chamaAtiva = streak > 0;
 
   // Choose quotes and insights based on state
@@ -276,7 +283,7 @@ const Dashboard = () => {
             <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-3 py-1.5 border ${cardBorder}`}>
               <Coins size={14} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }} />
               <span className="font-cinzel text-xs font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>
-                1.250
+                {dracmas.toLocaleString()}
               </span>
             </div>
           </div>
@@ -316,17 +323,17 @@ const Dashboard = () => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`${cardBg} rounded-xl border ${cardBorder} p-4 relative z-10 ${dishonoredClass}`}>
           <div className="flex items-center justify-between mb-2">
             <div>
-              <p className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Nível 12</p>
-              <p className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>Equites</p>
+              <p className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Nível {level}</p>
+              <p className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>{league === "plebe" ? "Plebe" : league === "legionario" ? "Legionário" : league === "centuriao" ? "Centurião" : "Pretoriano"}</p>
             </div>
             <div className="text-right">
-              <p className={`text-xs ${textMuted}`}>XP: 2.450 / 3.000</p>
+              <p className={`text-xs ${textMuted}`}>XP: {xp.toLocaleString()} / {(level * 500).toLocaleString()}</p>
             </div>
           </div>
           <div className="h-2 rounded-full overflow-hidden" style={{ background: chamaAtiva ? "hsl(var(--secondary))" : "hsl(var(--dishonor-border))" }}>
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: chamaAtiva ? "82%" : "82%" }}
+              animate={{ width: `${Math.min(100, Math.round((xp % 500) / 5))}%` }}
               transition={{ duration: 1, delay: 0.5 }}
               className="h-full rounded-full"
               style={{ background: chamaAtiva ? "linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-glow)))" : "linear-gradient(135deg, hsl(var(--dishonor-accent)), hsl(var(--dishonor-border)))" }}
@@ -453,7 +460,7 @@ const Dashboard = () => {
           </div>
           <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-4 py-2 border ${cardBorder}`}>
             <Coins size={16} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }} />
-            <span className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>1.250</span>
+            <span className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>{dracmas.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -473,16 +480,16 @@ const Dashboard = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={`${cardBg} rounded-xl border ${cardBorder} p-6 ${dishonoredClass}`}>
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Nível 12</p>
-                <p className="font-cinzel text-lg font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>Equites</p>
+                <p className={`text-[10px] uppercase tracking-wider ${textMuted}`}>Nível {level}</p>
+                <p className="font-cinzel text-lg font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>{league === "plebe" ? "Plebe" : league === "legionario" ? "Legionário" : league === "centuriao" ? "Centurião" : "Pretoriano"}</p>
               </div>
               <Award size={24} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }} />
             </div>
-            <p className={`text-xs mb-2 ${textMuted}`}>XP: 2.450 / 3.000</p>
+            <p className={`text-xs mb-2 ${textMuted}`}>XP: {xp.toLocaleString()} / {(level * 500).toLocaleString()}</p>
             <div className="h-3 rounded-full overflow-hidden" style={{ background: chamaAtiva ? "hsl(var(--secondary))" : "hsl(var(--dishonor-border))" }}>
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: "82%" }}
+                animate={{ width: `${Math.min(100, Math.round((xp % 500) / 5))}%` }}
                 transition={{ duration: 1, delay: 0.5 }}
                 className="h-full rounded-full"
                 style={{ background: chamaAtiva ? "linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-glow)))" : "linear-gradient(135deg, hsl(var(--dishonor-accent)), hsl(var(--dishonor-border)))" }}

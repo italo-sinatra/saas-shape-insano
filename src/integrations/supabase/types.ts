@@ -14,16 +14,275 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          achievement_key: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_key: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_key?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      anamnese: {
+        Row: {
+          agua_diaria: string | null
+          condicoes_saude: string | null
+          created_at: string
+          dados_extras: Json | null
+          dieta_atual: string | null
+          disponibilidade_treino: string | null
+          equipamentos: string | null
+          experiencia_treino: string | null
+          frequencia_treino: string | null
+          id: string
+          lesoes: string | null
+          local_treino: string | null
+          medicamentos: string | null
+          motivacao: string | null
+          nivel_estresse: string | null
+          objetivo: string | null
+          ocupacao: string | null
+          restricoes_alimentares: string | null
+          sono_horas: string | null
+          suplementos: string | null
+          user_id: string
+        }
+        Insert: {
+          agua_diaria?: string | null
+          condicoes_saude?: string | null
+          created_at?: string
+          dados_extras?: Json | null
+          dieta_atual?: string | null
+          disponibilidade_treino?: string | null
+          equipamentos?: string | null
+          experiencia_treino?: string | null
+          frequencia_treino?: string | null
+          id?: string
+          lesoes?: string | null
+          local_treino?: string | null
+          medicamentos?: string | null
+          motivacao?: string | null
+          nivel_estresse?: string | null
+          objetivo?: string | null
+          ocupacao?: string | null
+          restricoes_alimentares?: string | null
+          sono_horas?: string | null
+          suplementos?: string | null
+          user_id: string
+        }
+        Update: {
+          agua_diaria?: string | null
+          condicoes_saude?: string | null
+          created_at?: string
+          dados_extras?: Json | null
+          dieta_atual?: string | null
+          disponibilidade_treino?: string | null
+          equipamentos?: string | null
+          experiencia_treino?: string | null
+          frequencia_treino?: string | null
+          id?: string
+          lesoes?: string | null
+          local_treino?: string | null
+          medicamentos?: string | null
+          motivacao?: string | null
+          nivel_estresse?: string | null
+          objetivo?: string | null
+          ocupacao?: string | null
+          restricoes_alimentares?: string | null
+          sono_horas?: string | null
+          suplementos?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      gamification: {
+        Row: {
+          dracmas: number
+          flame_percent: number
+          league: Database["public"]["Enums"]["league_type"]
+          level: number
+          max_streak: number
+          streak: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          dracmas?: number
+          flame_percent?: number
+          league?: Database["public"]["Enums"]["league_type"]
+          level?: number
+          max_streak?: number
+          streak?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          dracmas?: number
+          flame_percent?: number
+          league?: Database["public"]["Enums"]["league_type"]
+          level?: number
+          max_streak?: number
+          streak?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          altura: string | null
+          avatar_url: string | null
+          cidade_estado: string | null
+          classe: Database["public"]["Enums"]["classe_type"] | null
+          cpf: string | null
+          created_at: string
+          email: string | null
+          faixa_etaria: string | null
+          fatores_escolha: string | null
+          id: string
+          indicacao: string | null
+          indicacao_nome: string | null
+          indicacao_telefone: string | null
+          nascimento: string | null
+          nome: string | null
+          onboarded: boolean
+          peso: string | null
+          sexo: string | null
+          telefone: string | null
+          tempo_acompanha: string | null
+        }
+        Insert: {
+          altura?: string | null
+          avatar_url?: string | null
+          cidade_estado?: string | null
+          classe?: Database["public"]["Enums"]["classe_type"] | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          faixa_etaria?: string | null
+          fatores_escolha?: string | null
+          id: string
+          indicacao?: string | null
+          indicacao_nome?: string | null
+          indicacao_telefone?: string | null
+          nascimento?: string | null
+          nome?: string | null
+          onboarded?: boolean
+          peso?: string | null
+          sexo?: string | null
+          telefone?: string | null
+          tempo_acompanha?: string | null
+        }
+        Update: {
+          altura?: string | null
+          avatar_url?: string | null
+          cidade_estado?: string | null
+          classe?: Database["public"]["Enums"]["classe_type"] | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          faixa_etaria?: string | null
+          fatores_escolha?: string | null
+          id?: string
+          indicacao?: string | null
+          indicacao_nome?: string | null
+          indicacao_telefone?: string | null
+          nascimento?: string | null
+          nome?: string | null
+          onboarded?: boolean
+          peso?: string | null
+          sexo?: string | null
+          telefone?: string | null
+          tempo_acompanha?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          created_at: string
+          dracmas_earned: number
+          duration_seconds: number | null
+          exercises: Json | null
+          finished_at: string | null
+          id: string
+          started_at: string
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          created_at?: string
+          dracmas_earned?: number
+          duration_seconds?: number | null
+          exercises?: Json | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          created_at?: string
+          dracmas_earned?: number
+          duration_seconds?: number | null
+          exercises?: Json | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "especialista" | "user"
+      classe_type: "gladius" | "velite" | "centurio"
+      league_type: "plebe" | "legionario" | "centuriao" | "pretoriano"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +409,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "especialista", "user"],
+      classe_type: ["gladius", "velite", "centurio"],
+      league_type: ["plebe", "legionario", "centuriao", "pretoriano"],
+    },
   },
 } as const
