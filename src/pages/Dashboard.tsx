@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Flame, Swords, Trophy, Users, Coins, Heart, Brain, TrendingUp, Sparkles, Dumbbell, Target, Zap, Calendar, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ChamaDeVesta from "@/components/ChamaDeVesta";
-import InvictusLogo from "@/components/InvictusLogo";
+import InsanoLogo from "@/components/InsanoLogo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart, BarChart, Bar } from "recharts";
 
@@ -49,10 +49,10 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-3">
-            <InvictusLogo size={36} />
+            <InsanoLogo size={36} />
             <div>
               <p className="text-muted-foreground text-xs">Ave, Guerreiro</p>
-              <h1 className="font-cinzel text-lg font-bold text-foreground">INVICTUS</h1>
+              <h1 className="font-cinzel text-lg font-bold text-foreground">INSANO</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -180,10 +180,10 @@ const Dashboard = () => {
       {/* Desktop Header Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <InvictusLogo size={44} />
+          <InsanoLogo size={44} />
           <div>
             <p className="text-muted-foreground text-xs">Ave, Guerreiro</p>
-            <h1 className="font-cinzel text-2xl font-bold text-foreground">INVICTUS</h1>
+            <h1 className="font-cinzel text-2xl font-bold text-foreground">INSANO</h1>
           </div>
         </div>
         <div className="flex items-center gap-3">

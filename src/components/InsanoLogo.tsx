@@ -1,23 +1,23 @@
-import invictusLogo from "@/assets/invictus-logo.png";
+import insanoLogo from "@/assets/insano-logo.png";
 
-interface InvictusLogoProps {
+interface InsanoLogoProps {
   size?: number;
   className?: string;
 }
 
-const InvictusLogo = ({ size = 40, className = "" }: InvictusLogoProps) => {
+const InsanoLogo = ({ size = 40, className = "" }: InsanoLogoProps) => {
   return (
     <div
       className={`rounded-full overflow-hidden flex items-center justify-center bg-primary ${className}`}
       style={{ width: size, height: size }}
     >
       <img
-        src={invictusLogo}
-        alt="INVICTUS"
+        src={insanoLogo}
+        alt="INSANO"
         className="w-full h-full object-cover"
       />
     </div>
   );
 };
 
-export default InvictusLogo;
+export default InsanoLogo;

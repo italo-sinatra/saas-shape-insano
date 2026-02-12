@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Flame, Trophy, Sword, Coins, Settings, Shield, TrendingUp, Target, Award } from "lucide-react";
-import InvictusLogo from "@/components/InvictusLogo";
+import InsanoLogo from "@/components/InsanoLogo";
 
 const Perfil = () => {
   return (

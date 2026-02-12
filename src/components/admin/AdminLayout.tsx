@@ -11,7 +11,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useState } from "react";
-import InvictusLogo from "@/components/InvictusLogo";
+import InsanoLogo from "@/components/InsanoLogo";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -46,7 +46,7 @@ const AdminLayout = () => {
         <div className="flex items-center justify-between p-4 border-b border-border">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <InvictusLogo size={28} />
+              <InsanoLogo size={28} />
               <span className="font-cinzel text-sm font-bold text-gold">QUARTEL GENERAL</span>
             </div>
           )}

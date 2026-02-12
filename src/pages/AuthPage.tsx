@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Mail, Lock, Eye, EyeOff, ArrowLeft, User } from "lucide-react";
-import InvictusLogo from "@/components/InvictusLogo";
+import InsanoLogo from "@/components/InsanoLogo";
 import { Input } from "@/components/ui/input";
 import authBg from "@/assets/auth-bg.jpg";
 
@@ -55,7 +55,7 @@ const AuthPage = ({ onAuth }: AuthPageProps) => {
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               className="mb-6"
             >
-              <InvictusLogo size={88} className="mx-auto gold-shadow" />
+              <InsanoLogo size={88} className="mx-auto gold-shadow" />
             </motion.div>
 
             <motion.h1
@@ -64,7 +64,7 @@ const AuthPage = ({ onAuth }: AuthPageProps) => {
               transition={{ delay: 0.4 }}
               className="font-cinzel text-4xl md:text-5xl font-bold text-foreground text-center tracking-wide mb-2"
             >
-              <span className="gold-text-gradient">INVICTUS</span>
+              <span className="gold-text-gradient">INSANO</span>
             </motion.h1>
 
             <motion.p
@@ -153,7 +153,7 @@ const AuthPage = ({ onAuth }: AuthPageProps) => {
               transition={{ type: "spring" }}
               className="mb-6"
             >
-              <InvictusLogo size={64} className="mx-auto" />
+              <InsanoLogo size={64} className="mx-auto" />
             </motion.div>
 
             <h2 className="font-cinzel text-2xl font-bold text-foreground mb-1">
@@ -245,7 +245,7 @@ const AuthPage = ({ onAuth }: AuthPageProps) => {
               transition={{ type: "spring" }}
               className="mb-6"
             >
-              <InvictusLogo size={64} className="mx-auto" />
+              <InsanoLogo size={64} className="mx-auto" />
             </motion.div>
 
             <h2 className="font-cinzel text-2xl font-bold text-foreground mb-1">
