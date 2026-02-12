@@ -1,127 +1,100 @@
 
 
-# Reestruturacao da Anamnese baseada no Google Forms
+# Enviar Anamnese para Google Sheets
 
-## Resumo
+## Objetivo
+Ao finalizar o onboarding, todos os dados preenchidos pelo aluno serao enviados automaticamente para uma planilha no Google Sheets, criando uma nova linha com todas as respostas.
 
-Reescrever completamente o `src/pages/Onboarding.tsx` para refletir todas as perguntas do formulario Google Forms do "1o Mes Anamnese | Clube Anti-Falhas", mantendo a estetica romana e o fluxo imersivo existente (stepper, animacoes, quiz do Oraculo e Chama de Vesta no final).
+## Abordagem Escolhida: Google Apps Script (gratuito, sem dependencias)
 
----
-
-## Nova Estrutura de Etapas
-
-O formulario original tem muitas perguntas. Para manter a experiencia mobile-friendly sem sobrecarregar o usuario, as etapas serao reorganizadas assim:
+A forma mais simples e gratuita de conectar o app ao Google Sheets e usar um Google Apps Script como "ponte". Funciona assim:
 
 ```text
-1. welcome        - Tela de boas-vindas (manter)
-2. cadastro       - Dados pessoais (expandido)
-3. fotos          - Upload de fotos para analise postural (NOVO)
-4. objetivo       - Objetivo, fisiculturismo (NOVO)
-5. treino         - Rotina de treino (expandido do antigo "fisico")
-6. academia       - Maquinas da academia, dores, exercicios (NOVO)
-7. saude          - Doencas, medicamentos, alergias (NOVO)
-8. nutricional    - Nutricao completa (expandido)
-9. estilo_vida    - Sono, agua, atividade, cardio (NOVO, absorve parte do antigo "psicologico")
-10. quiz          - Oraculo das classes (manter)
-11. result        - Resultado da classe (manter)
-12. ignite        - Chama de Vesta (manter)
+Aluno preenche onboarding
+        |
+        v
+App envia dados via fetch (POST)
+        |
+        v
+Google Apps Script recebe os dados
+        |
+        v
+Insere nova linha na planilha
 ```
 
----
-
-## Campos por Etapa (baseados no Google Forms)
-
-### Etapa 2 - Cadastro (Dados do Legionario)
-- Nome completo (text, obrigatorio)
-- Email mais utilizado (email, obrigatorio)
-- Telefone/WhatsApp (text, obrigatorio)
-- Data de nascimento (date, obrigatorio)
-- CPF (text, obrigatorio)
-- Cidade/Estado (text, obrigatorio)
-- Sexo (select: Masculino, Feminino)
-- Faixa etaria (select: as 9 faixas do forms)
-- Indicacao (select: Sim/Nao) + campos condicionais (nome e telefone de quem indicou)
-
-### Etapa 3 - Fotos (Analise Postural) - NOVO
-- Instrucoes visuais de como tirar as fotos (texto do forms)
-- 5 campos de upload: frente, costas, lado direito, lado esquerdo, perfil
-- Nota: uploads serao placeholders visuais por enquanto (sem backend), com botao de selecionar arquivo e preview
-
-### Etapa 4 - Objetivo - NOVO
-- Objetivo principal (select: Ganho de massa, Perda de gordura, Deixo para profissionais, Outro)
-- Campo condicional "Outro objetivo" (text)
-- Pretende ser atleta de fisiculturismo? (select: Sim, Nao)
-- Campos condicionais para fisiculturismo (3 uploads de poses)
-
-### Etapa 5 - Treino (Rotina de Batalha)
-- Ja pratica musculacao? (select: Sim, Nao irei comecar)
-- Local de treino (select: Academia, Casa, Parte/parte)
-- Campo condicional "maquinas/pesos em casa" (textarea)
-- Dias da semana disponiveis (checkbox: Dom a Sab)
-- Frequencia de compromisso (select: 2 a 7 dias)
-- Horario de treino (text)
-- Tempo disponivel para treino (select: <1h, 1h, 1h30, 2h, +2h)
-- Tempo disponivel para cardio (select: <15min, 15-30, 30-45, 45-60, Nao tenho)
-- Upload treino antigo (file, opcional)
-
-### Etapa 6 - Academia e Corpo - NOVO
-- Grupos musculares prioritarios (textarea)
-- Dor/desconforto ao se movimentar? (select: Sim, Nao) + campo condicional
-- Exercicios que nao gosta? (select: Sim, Nao) + campo condicional
-- Maquinas que NAO tem na academia (checkbox com todas as ~30 opcoes do forms, incluindo "Tenho todas")
-
-### Etapa 7 - Saude - NOVO
-- Doencas (checkbox: Diabetes, Pressao alta, Colesterol, Cancer, Depressao, Ansiedade, Triglicerideos, Nenhuma, Outra)
-- Campo condicional "outra doenca" (text)
-- Historico familiar (select: Sim, Nao) + campo condicional
-- Medicamentos controlados (text)
-- Alergias/intolerancias (checkbox: Gluten, Lactose, Nenhuma, Outro) + campo condicional
-
-### Etapa 8 - Nutricional (Combustivel de Batalha)
-- Nivel de atividade no trabalho (select: Sedentario, Moderado, Ativo)
-- Media de passos diarios / calorias gastas (text)
-- Faz cardio? (select: Sim, Nao) + tempo condicional
-- Quantas refeicoes por dia (select: 1-7)
-- Horario e descricao das refeicoes (textarea)
-- Faixa de calorias atual (select: as 7 opcoes do forms)
-- Ha quanto tempo consome essa faixa (text)
-- Restricoes alimentares (checkbox: Ovolacto, Lacto, Ovo, Vegano, Nao)
-- Frutas preferidas (checkbox: 22 frutas do forms, minimo 5)
-- Suplementos (checkbox: Whey, Creatina, Glutamina, Pre-treino, BCAA, Hipercalorico, Omega3, Beta-Alanina, Cafeina, Multivitaminico, Nenhum, Outro)
-
-### Etapa 9 - Estilo de Vida (Mente e Recuperacao)
-- Horario de dormir e acordar (text)
-- Qualidade do sono (select)
-- Alimentos que quer diariamente na dieta (textarea)
-- Alimentos que nao come (textarea)
-- Litros de agua por dia (select: <1L, 1L, 1.5L, 2L, 2.5L, 3L, 4L+)
-- Toma liquido nas refeicoes? (select: Sim, Nao) + qual
-- Disponibilidade de investimento em dieta (select: Pouco, Medio, Muito)
-- Faixa salarial (select: as 8 faixas do forms, opcional)
-
-### Etapas 10-12 - Quiz, Resultado e Chama (manter como estao)
+Nao precisa de Supabase, Zapier, nem chaves de API no projeto.
 
 ---
 
-## Detalhes Tecnicos
+## O que voce precisa fazer (unica vez)
 
-### Arquivo modificado:
-- `src/pages/Onboarding.tsx` — reescrita completa do formulario
+1. Criar uma planilha no Google Sheets com os cabecalhos (nome, email, telefone, etc.)
+2. Ir em **Extensoes > Apps Script**, colar um script que eu vou fornecer pronto
+3. Publicar o script como "Web App" (acesso: qualquer pessoa)
+4. Copiar a URL gerada e colar no app
 
-### O que muda:
-- `Step` type expandido para incluir novas etapas (fotos, objetivo, academia, saude, estilo_vida)
-- `userData` state expandido com todos os novos campos
-- Novos arrays de opcoes para checkboxes (maquinas, doencas, frutas, suplementos)
-- Campos condicionais renderizados com `&&` baseado em valores do state
-- Upload de fotos como `<input type="file">` com preview local (sem backend por enquanto)
-- Etapas longas (maquinas da academia) usam `ScrollArea` para scroll interno
+Vou fornecer o script do Google Apps Script pronto para copiar e colar.
 
-### O que NAO muda:
-- Estetica romana (fontes Cinzel, gradients crimson/gold, marble-texture)
-- Animacoes de transicao entre etapas (framer-motion)
-- Quiz do Oraculo e classes (Gladius, Velite, Centurio)
-- Tela da Chama de Vesta final
-- Estrutura geral do componente (steps array, stepper visual, botoes de avancar)
+---
 
-### Dependencias: nenhuma nova necessaria
+## Mudancas no Codigo
+
+### 1. Criar `src/lib/submitAnamnese.ts`
+- Funcao que recebe os dados do `userData` e a URL do webhook
+- Filtra apenas campos de texto (ignora arquivos `File` por enquanto, pois Google Sheets nao aceita binarios)
+- Faz `fetch` POST com `mode: "no-cors"` para o endpoint do Apps Script
+- Retorna sucesso/erro
+
+### 2. Alterar `src/pages/Onboarding.tsx`
+- Na etapa "ignite" (Chama de Vesta), ao clicar no botao final, chamar `submitAnamnese()` antes de `onComplete()`
+- Adicionar a URL do webhook como constante (ou campo configuravel no admin futuramente)
+- Exibir toast de confirmacao ao enviar com sucesso
+- Incluir a classe resultante do quiz (Gladius/Velite/Centurio) nos dados enviados
+
+### 3. Criar `src/pages/onboarding/googleSheetsScript.ts`
+- Arquivo com o codigo do Google Apps Script como comentario/documentacao para o usuario copiar
+- Facilitara a consulta sem sair do projeto
+
+---
+
+## Dados Enviados para a Planilha
+
+Todos os campos de texto do formulario, organizados em colunas:
+- Data/hora do envio
+- Nome, Email, Telefone, Nascimento, CPF, Cidade/Estado
+- Sexo, Faixa etaria, Tempo acompanha, Altura, Peso
+- Fatores de escolha, Indicacao, Nome/Telefone indicacao
+- Objetivo, Fisiculturismo, Influenciador
+- Pratica musculacao, Local treino, Dias semana, Frequencia, Horario, Tempo treino/cardio
+- Grupos prioritarios, Dores, Exercicios que nao gosta, Maquinas que nao tem
+- Doencas, Historico familiar, Medicamentos, Alergias
+- Nivel atividade, Passos, Cardio, Refeicoes, Calorias, Restricoes, Frutas, Suplementos
+- Sono, Qualidade sono, Alimentos diarios/nao come, Agua, Liquido refeicao
+- Investimento dieta, Faixa salarial
+- **Classe do Oraculo** (resultado do quiz)
+
+Fotos nao serao enviadas ao Sheets (sao binarios). Quando o Supabase for conectado, as fotos irao para o Storage.
+
+---
+
+## Secao Tecnica
+
+### `submitAnamnese.ts`
+```typescript
+export async function submitAnamnese(userData: UserData, resultClass: string, webhookUrl: string)
+```
+- Serializa todos os campos string/array do userData
+- Arrays (dias_semana, maquinas, frutas, etc.) sao convertidos em string separada por virgula
+- Campos File sao ignorados
+- POST com `mode: "no-cors"` e `Content-Type: text/plain` (contorno para CORS do Apps Script)
+
+### Google Apps Script (fornecido ao usuario)
+- Funcao `doPost(e)` que parseia o JSON recebido
+- Insere uma linha na aba ativa da planilha
+- Retorna `ContentService.createTextOutput("ok")`
+
+### Fluxo no Onboarding
+- O webhook URL sera uma constante no codigo por enquanto
+- Quando nao houver URL configurada, os dados serao apenas logados no console
+- Toast de sucesso/erro apos o envio
 
