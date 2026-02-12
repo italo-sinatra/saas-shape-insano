@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sword, Leaf, Building2, Send } from "lucide-react";
+import { Sword, Leaf, Building2, Send, ArrowLeft } from "lucide-react";
 
 interface Mentor {
   id: string;
@@ -126,16 +126,21 @@ const Mentores = () => {
           className="flex flex-col h-[calc(100vh-12rem)]"
         >
           {/* Chat header */}
-          <div
-            className={`flex items-center gap-3 pb-4 border-b border-border mb-4 cursor-pointer`}
-            onClick={() => setSelectedMentor(null)}
-          >
+          <div className="flex items-center gap-3 pb-4 border-b border-border mb-4">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setSelectedMentor(null)}
+              className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+            >
+              <ArrowLeft size={18} className="text-foreground" />
+            </motion.button>
             <div className={`w-10 h-10 rounded-lg ${selectedMentor.bgAccent} flex items-center justify-center`}>
               <selectedMentor.icon className={selectedMentor.accent} size={20} />
             </div>
             <div>
               <h3 className={`font-cinzel font-bold text-sm ${selectedMentor.accent}`}>{selectedMentor.name}</h3>
-              <p className="text-xs text-muted-foreground">Toque para voltar</p>
+              <p className="text-xs text-muted-foreground">{selectedMentor.title}</p>
             </div>
           </div>
 
