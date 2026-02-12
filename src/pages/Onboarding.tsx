@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, ChevronRight, User, Dumbbell, Apple, Brain } from "lucide-react";
-import InvictusLogo from "@/components/InvictusLogo";
+import InsanoLogo from "@/components/InsanoLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -185,7 +185,7 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
         {step === "welcome" && (
           <motion.div key="welcome" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="text-center max-w-md">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="mx-auto mb-8">
-              <InvictusLogo size={80} className="mx-auto" />
+              <InsanoLogo size={80} className="mx-auto" />
             </motion.div>
             <h1 className="font-cinzel text-3xl md:text-4xl font-bold text-foreground mb-4">
               AVE, <span className="gold-text-gradient">GUERREIRO</span>
