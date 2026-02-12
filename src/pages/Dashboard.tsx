@@ -121,7 +121,7 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
 
   // Simulated streak — set to 0 to see "chama apagada" mode
-  const streak = 0;
+  const streak = 14;
   const chamaAtiva = streak > 0;
 
   // Choose quotes and insights based on state
