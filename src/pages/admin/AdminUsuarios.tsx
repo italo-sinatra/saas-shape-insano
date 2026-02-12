@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   Search, Filter, Flame, Eye, MessageSquare,
-  ChevronDown, ChevronUp, User, Dumbbell, Apple, Brain, Shield,
+  ChevronDown, ChevronUp, User, Dumbbell, Apple, Brain, Shield, UserPlus,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const mockUsers = [
   {
@@ -71,16 +74,73 @@ const Field = ({ label, value }: { label: string; value: string }) => (
 const AdminUsuarios = () => {
   const [search, setSearch] = useState("");
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "" });
 
   const filtered = mockUsers.filter(
     (u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleCreateUser = async () => {
+    if (!newUser.nome || !newUser.email || !newUser.password) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("admin-create-user", {
+        body: { email: newUser.email, password: newUser.password, nome: newUser.nome },
+      });
+      if (res.error || res.data?.error) {
+        toast.error(res.data?.error || res.error?.message || "Erro ao criar conta");
+      } else {
+        toast.success(`Conta criada para ${newUser.nome}!`);
+        setNewUser({ nome: "", email: "", password: "" });
+        setCreateOpen(false);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erro inesperado");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-cinzel text-2xl font-bold text-foreground">Gestão de Usuários</h1>
-        <p className="text-sm text-muted-foreground">Visão consolidada de todos os guerreiros da plataforma</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-cinzel text-2xl font-bold text-foreground">Gestão de Usuários</h1>
+          <p className="text-sm text-muted-foreground">Visão consolidada de todos os guerreiros da plataforma</p>
+        </div>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2"><UserPlus size={16} /> Nova Conta</Button>
+          </DialogTrigger>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader>
+              <DialogTitle className="font-cinzel">Criar Conta (sem triagem)</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div className="space-y-2">
+                <Label>Nome completo</Label>
+                <Input placeholder="Ex: Marcus Vinícius" value={newUser.nome} onChange={(e) => setNewUser({ ...newUser, nome: e.target.value })} className="bg-background border-border" />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" placeholder="email@exemplo.com" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="bg-background border-border" />
+              </div>
+              <div className="space-y-2">
+                <Label>Senha</Label>
+                <Input type="password" placeholder="Mínimo 6 caracteres" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="bg-background border-border" />
+              </div>
+              <Button onClick={handleCreateUser} disabled={creating} className="w-full">
+                {creating ? "Criando..." : "Criar Conta"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
