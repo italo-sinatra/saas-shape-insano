@@ -4,6 +4,8 @@ import posturalPerfil from "@/assets/postural-perfil.png";
 import posturalTeste from "@/assets/postural-teste.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, ChevronRight, User, Dumbbell, Apple, Brain, Camera, Target, Building2, HeartPulse, Coffee } from "lucide-react";
+import { submitAnamnese } from "@/lib/submitAnamnese";
+import { toast } from "sonner";
 import InsanoLogo from "@/components/InsanoLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +34,7 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
   const [resultClass, setResultClass] = useState<keyof typeof classResults | null>(null);
   const [userData, setUserData] = useState<UserData>(initialUserData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const u = <K extends keyof UserData>(field: K, value: UserData[K]) =>
     setUserData((prev) => ({ ...prev, [field]: value }));
@@ -565,8 +568,23 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
             <h2 className="font-cinzel text-2xl md:text-3xl font-bold mb-4">A <span className="gold-text-gradient">CHAMA DE VESTA</span></h2>
             <p className="text-muted-foreground mb-2">Tua chama foi acesa. Ela representa tua consistência.</p>
             <p className="text-muted-foreground mb-8 text-sm">Treine diariamente para mantê-la viva. Se ela apagar... enfrentarás a <strong className="text-foreground">Desonra</strong>.</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onComplete} className="px-8 py-3 crimson-gradient text-foreground font-cinzel font-bold rounded-lg crimson-shadow tracking-wider">
-              ENTRAR NA ARENA
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={isSubmitting} onClick={async () => {
+              setIsSubmitting(true);
+              try {
+                const result = await submitAnamnese(userData, resultClass || "indefinido");
+                if (result.success) {
+                  toast.success("Dados enviados com sucesso!");
+                } else {
+                  toast.error("Erro ao enviar dados: " + result.error);
+                }
+              } catch {
+                toast.error("Erro ao enviar dados.");
+              } finally {
+                setIsSubmitting(false);
+                onComplete();
+              }
+            }} className="px-8 py-3 crimson-gradient text-foreground font-cinzel font-bold rounded-lg crimson-shadow tracking-wider disabled:opacity-50">
+              {isSubmitting ? "ENVIANDO..." : "ENTRAR NA ARENA"}
             </motion.button>
           </motion.div>
         )}
