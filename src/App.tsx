@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 import AppLayout from "./components/AppLayout";
+import AuthPage from "./pages/AuthPage";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Mentores from "./pages/Mentores";
@@ -31,10 +32,15 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const location = useLocation();
+  const [authenticated, setAuthenticated] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
   const [dishonorMode, setDishonorMode] = useState(false);
 
   const isServiceRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/especialista");
+
+  if (!authenticated && !isServiceRoute) {
+    return <AuthPage onAuth={() => setAuthenticated(true)} />;
+  }
 
   if (!onboarded && !isServiceRoute) {
     return <Onboarding onComplete={() => setOnboarded(true)} />;
