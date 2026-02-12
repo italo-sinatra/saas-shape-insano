@@ -1,7 +1,7 @@
 import type { UserData } from "@/pages/onboarding/constants";
 
 // URL do Google Apps Script Web App - substitua pela sua URL após publicar o script
-const WEBHOOK_URL = "";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzbNR7eLxtYFtHqv0TigXyqFypKqYYlVK0VzV3aHdoO76Ii6ch2SslwMEK-A7lVEcZXAg/exec";
 
 export async function submitAnamnese(
   userData: UserData,
