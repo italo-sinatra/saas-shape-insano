@@ -1,8 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { Flame, Swords, Trophy, User } from "lucide-react";
+import { LayoutDashboard, Swords, Trophy, User } from "lucide-react";
 
 const navItems = [
-  { to: "/", icon: Flame, label: "Arena" },
+  { to: "/", icon: LayoutDashboard, label: "Arena" },
   { to: "/mentores", icon: Swords, label: "Mentores" },
   { to: "/coliseu", icon: Trophy, label: "Coliseu" },
   { to: "/perfil", icon: User, label: "Perfil" },
