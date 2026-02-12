@@ -12,6 +12,14 @@ import Coliseu from "./pages/Coliseu";
 import Perfil from "./pages/Perfil";
 import BattleMode from "./pages/BattleMode";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsuarios from "./pages/admin/AdminUsuarios";
+import AdminPlanos from "./pages/admin/AdminPlanos";
+import AdminEspecialistas from "./pages/admin/AdminEspecialistas";
+import AdminComunicacao from "./pages/admin/AdminComunicacao";
+import AdminRelatorios from "./pages/admin/AdminRelatorios";
+import AdminConfig from "./pages/admin/AdminConfig";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +54,15 @@ const App = () => {
                 <Route path="/perfil" element={<Perfil />} />
               </Route>
               <Route path="/batalha" element={<BattleMode />} />
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+                <Route path="/admin/planos" element={<AdminPlanos />} />
+                <Route path="/admin/especialistas" element={<AdminEspecialistas />} />
+                <Route path="/admin/comunicacao" element={<AdminComunicacao />} />
+                <Route path="/admin/relatorios" element={<AdminRelatorios />} />
+                <Route path="/admin/config" element={<AdminConfig />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
