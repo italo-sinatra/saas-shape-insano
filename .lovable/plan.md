@@ -1,59 +1,52 @@
 
+# Melhorias: Dashboard Responsivo, Mentores, e Coliseu com Ligas
 
-# INVICTUS — Visual Prototype Plan 🏛️⚔️
+## 1. Dashboard Responsivo (Mobile vs Desktop)
 
-## 1. Theme & Design System
-- **Dark Marble & Gold** color palette: Obsidian (#0A0A0A), Crimson (#8B0000), Imperial Gold (#D4AF37), Dark Marble (#1A1A1A)
-- Google Font **Cinzel** for headers (Roman aesthetic), **Inter** for body text
-- Custom CSS animations for pulsing effects, gold particle bursts, and smooth transitions
-- Subtle marble texture overlays on cards and surfaces
+**Mobile** (atual): layout vertical em coluna unica, como esta hoje -- sera mantido e polido.
 
-## 2. Onboarding — "O Ritual de Alistamento"
-- Immersive multi-step flow styled as a dialogue (not a boring form)
-- Class selection screen with 3 dramatic cards: **Gladius** (Hypertrophy), **Velite** (Cardio/Agility), **Centurio** (Raw Strength)
-- Each class has a unique icon, color accent, and description
-- Animated "Chama de Vesta" ignition at the end of onboarding
+**Desktop** (novo): quando a tela for >= 768px, o dashboard muda para um layout de grid com multiplas colunas, mais proximo de um painel administrativo real:
+- Header com logo + stats em barra horizontal
+- Grid de 3 colunas: Chama de Vesta + Stats na esquerda, Grafico de performance + AI Insight no centro, XP/Liga + Atalhos na direita
+- Cards maiores com mais espaco e informacoes visiveis
+- Usar o hook `useIsMobile()` ja existente para alternar layouts
 
-## 3. Main Dashboard
-- **Chama de Vesta**: Animated circular progress ring showing consistency streak — visually decays to simulate inactivity
-- Player stats card: Level, XP bar, Dracmas (currency), current League
-- Quick action buttons: "Iniciar Batalha", "Mentores", "Coliseu"
-- Daily stoic quote banner (rotating pre-written quotes)
+## 2. Mentores -- Botao de Voltar
 
-## 4. Mentores (AI Mentor Section)
-- 3 distinct mentor cards with unique visual identities:
-  - **MARS** 🗡️ — Red accent, military tone, training advice
-  - **CERES** 🌾 — Green/earth accent, analytical nutrition guidance
-  - **SENECA** 🏛️ — Gold accent, calm stoic wisdom and breathing exercises
-- Chat-style interface with pre-written scripted responses for each mentor
-- Each mentor has a distinct message bubble style and avatar
+- Adicionar um botao de voltar explicito (icone de seta) no header do chat quando um mentor esta selecionado
+- Substituir o "Toque para voltar" por um botao `ArrowLeft` claro e clicavel, separado do header do mentor
 
-## 5. Battle Mode (Treino)
-- "Iniciar Batalha" button triggers a UI transformation
-- Minimalist, high-contrast dark interface with pulsing red elements
-- Timer display, exercise list, rep counter
-- Smooth transition animation entering and exiting battle mode
+## 3. Coliseu -- Ligas Separadas
 
-## 6. Coliseu — Leaderboard
-- League system with 4 tiers displayed as tabs or visual progression: **Plebe → Equites → Legionários → Pretorianos**
-- Each tier has its own icon/badge and color treatment
-- Mock leaderboard table with player names, XP, and rank
-- Current user highlighted with gold accent
+Logica atual esta errada: mostra todos os jogadores juntos e permite filtrar livremente. A correcao:
 
-## 7. Neuro-Crate Reward Animation
-- "Open Crate" interaction after completing a workout
-- Animated chest/crate opening with golden particle burst effect
-- Reveals random reward: XP bonus, Dracmas, or cosmetic "Skin"
-- Celebration animation with the reward displayed prominently
+- O usuario pertence a UMA liga (ex: "equites") baseado no seu XP
+- Ao entrar no Coliseu, o usuario ve APENAS a sua liga com os jogadores dessa liga
+- Acima, mostra uma visualizacao de progressao das ligas (Plebe -> Equites -> Legionarios -> Pretorianos) com a liga atual destacada
+- Remover o botao "TODAS" e os filtros de outras ligas
+- Adicionar faixas de XP para cada liga (ex: Plebe 0-5000, Equites 5001-10000, etc.)
+- Mostrar quanto XP falta para a proxima liga
+- Adicionar secao de "Bonus de Promocao" que mostra as recompensas de subir de liga (ex: +500 Dracmas, Skin exclusiva, titulo especial)
 
-## 8. Modo Desonra (Grayscale Mode)
-- Toggle-able demo state where the entire UI shifts to grayscale
-- "Desafio de Redenção" prompt appears to restore color
-- Demonstrates the consequence mechanic visually
+## Detalhes Tecnicos
 
-## 9. Navigation & Layout
-- Sidebar or bottom navigation with Roman-themed icons
-- Pages: Dashboard, Mentores, Coliseu, Perfil (Profile)
-- Responsive design optimized for mobile-first experience
-- Smooth page transitions
+### Dashboard Responsivo
+- Arquivo: `src/pages/Dashboard.tsx`
+- Importar `useIsMobile` de `@/hooks/use-mobile`
+- Renderizar condicionalmente: `isMobile ? <MobileLayout /> : <DesktopLayout />`
+- Desktop usa `grid grid-cols-3 gap-6` com cards maiores
+- Mobile mantem o layout vertical atual
 
+### Mentores
+- Arquivo: `src/pages/Mentores.tsx`
+- Adicionar icone `ArrowLeft` do lucide-react
+- Botao dedicado no header do chat que chama `setSelectedMentor(null)`
+
+### Coliseu
+- Arquivo: `src/pages/Coliseu.tsx`
+- Definir `userLeague = "equites"` e `userXP = 8450` (mock)
+- Definir faixas: `{ plebe: [0, 5000], equites: [5001, 10000], legionarios: [10001, 15000], pretorianos: [15001, Infinity] }`
+- Filtrar `mockPlayers` para mostrar apenas os da mesma liga do usuario
+- Adicionar barra de progresso mostrando XP atual vs proximo nivel de liga
+- Adicionar card de "Bonus de Promocao" com recompensas da proxima liga
+- Adicionar visualizacao horizontal de progressao entre ligas com a atual destacada
