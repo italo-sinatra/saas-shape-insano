@@ -1,73 +1,127 @@
 
 
-# Dashboard do Aluno - Melhorias Visuais e Funcionais
+# Reestruturacao da Anamnese baseada no Google Forms
 
 ## Resumo
 
-Quatro melhorias no dashboard do aluno: icones corretos na navegacao, insights de IA vinculados aos mentores (Mars, Ceres, Seneca), versao "Modo Desonra" do dashboard quando a chama esta apagada, e frases estoicas que rotacionam automaticamente.
+Reescrever completamente o `src/pages/Onboarding.tsx` para refletir todas as perguntas do formulario Google Forms do "1o Mes Anamnese | Clube Anti-Falhas", mantendo a estetica romana e o fluxo imersivo existente (stepper, animacoes, quiz do Oraculo e Chama de Vesta no final).
 
 ---
 
-## 1. Icones da Navegacao (BottomNav)
+## Nova Estrutura de Etapas
 
-- **Arena** (rota `/`): trocar `LayoutDashboard` por `Dumbbell` (haltere, referencia a academia/treino)
-- **Coliseu** (rota `/coliseu`): trocar `Trophy` por `Landmark` (icone do Lucide que representa um edificio classico com colunas, estilo coliseu romano)
-- **Mentores** permanece com `Swords`, **Perfil** permanece com `User`
+O formulario original tem muitas perguntas. Para manter a experiencia mobile-friendly sem sobrecarregar o usuario, as etapas serao reorganizadas assim:
 
-## 2. Insights de IA por Mentor
+```text
+1. welcome        - Tela de boas-vindas (manter)
+2. cadastro       - Dados pessoais (expandido)
+3. fotos          - Upload de fotos para analise postural (NOVO)
+4. objetivo       - Objetivo, fisiculturismo (NOVO)
+5. treino         - Rotina de treino (expandido do antigo "fisico")
+6. academia       - Maquinas da academia, dores, exercicios (NOVO)
+7. saude          - Doencas, medicamentos, alergias (NOVO)
+8. nutricional    - Nutricao completa (expandido)
+9. estilo_vida    - Sono, agua, atividade, cardio (NOVO, absorve parte do antigo "psicologico")
+10. quiz          - Oraculo das classes (manter)
+11. result        - Resultado da classe (manter)
+12. ignite        - Chama de Vesta (manter)
+```
 
-Substituir o card generico "Insight da IA" por um sistema que mostra insights vinculados aos 3 mentores, cada um com sua cor e identidade:
+---
 
-- **Mars** (treino): icone `Sword`, cores vermelhas (`text-red-400`, `bg-red-900/30`, borda vermelha)
-- **Ceres** (nutricao): icone `Leaf`, cores verdes (`text-green-400`, `bg-green-900/30`, borda verde)
-- **Seneca** (mental): icone `Building2`, cores ambar (`text-amber-400`, `bg-amber-900/30`, borda ambar)
+## Campos por Etapa (baseados no Google Forms)
 
-Array de insights mockados com campo `mentor` para identificar qual agente fala. O insight exibido rotaciona automaticamente ou e selecionado aleatoriamente a cada render. Cada card mostra o nome do mentor, seu icone e usa as cores correspondentes.
+### Etapa 2 - Cadastro (Dados do Legionario)
+- Nome completo (text, obrigatorio)
+- Email mais utilizado (email, obrigatorio)
+- Telefone/WhatsApp (text, obrigatorio)
+- Data de nascimento (date, obrigatorio)
+- CPF (text, obrigatorio)
+- Cidade/Estado (text, obrigatorio)
+- Sexo (select: Masculino, Feminino)
+- Faixa etaria (select: as 9 faixas do forms)
+- Indicacao (select: Sim/Nao) + campos condicionais (nome e telefone de quem indicou)
 
-## 3. Frases Estoicas com Rotacao Automatica
+### Etapa 3 - Fotos (Analise Postural) - NOVO
+- Instrucoes visuais de como tirar as fotos (texto do forms)
+- 5 campos de upload: frente, costas, lado direito, lado esquerdo, perfil
+- Nota: uploads serao placeholders visuais por enquanto (sem backend), com botao de selecionar arquivo e preview
 
-Ao inves de selecionar uma frase aleatoria so no carregamento da pagina, implementar um `useEffect` com `setInterval` que troca a frase a cada 30 segundos com animacao de fade (usando `AnimatePresence` do framer-motion). Expandir a lista de citacoes para mais variedade.
+### Etapa 4 - Objetivo - NOVO
+- Objetivo principal (select: Ganho de massa, Perda de gordura, Deixo para profissionais, Outro)
+- Campo condicional "Outro objetivo" (text)
+- Pretende ser atleta de fisiculturismo? (select: Sim, Nao)
+- Campos condicionais para fisiculturismo (3 uploads de poses)
 
-## 4. Dashboard "Chama Apagada" (Modo Desonra Visual)
+### Etapa 5 - Treino (Rotina de Batalha)
+- Ja pratica musculacao? (select: Sim, Nao irei comecar)
+- Local de treino (select: Academia, Casa, Parte/parte)
+- Campo condicional "maquinas/pesos em casa" (textarea)
+- Dias da semana disponiveis (checkbox: Dom a Sab)
+- Frequencia de compromisso (select: 2 a 7 dias)
+- Horario de treino (text)
+- Tempo disponivel para treino (select: <1h, 1h, 1h30, 2h, +2h)
+- Tempo disponivel para cardio (select: <15min, 15-30, 30-45, 45-60, Nao tenho)
+- Upload treino antigo (file, opcional)
 
-Adicionar uma prop ou estado que simula a chama apagada (ex: `streak = 0` ou `chamaAtiva = false`). Quando a chama estiver apagada:
+### Etapa 6 - Academia e Corpo - NOVO
+- Grupos musculares prioritarios (textarea)
+- Dor/desconforto ao se movimentar? (select: Sim, Nao) + campo condicional
+- Exercicios que nao gosta? (select: Sim, Nao) + campo condicional
+- Maquinas que NAO tem na academia (checkbox com todas as ~30 opcoes do forms, incluindo "Tenho todas")
 
-- O componente `ChamaDeVesta` mostra a chama cinza/apagada (cor muted em vez de gold/accent)
-- O card de XP e stats usam cores dessaturadas
-- Um banner de alerta aparece no topo: "Tua chama se apagou. Treina hoje para reacende-la." com visual vermelho/crimson
-- O botao "INICIAR BATALHA" pulsa com mais intensidade (urgencia)
-- O fundo geral ganha uma leve overlay escura
+### Etapa 7 - Saude - NOVO
+- Doencas (checkbox: Diabetes, Pressao alta, Colesterol, Cancer, Depressao, Ansiedade, Triglicerideos, Nenhuma, Outra)
+- Campo condicional "outra doenca" (text)
+- Historico familiar (select: Sim, Nao) + campo condicional
+- Medicamentos controlados (text)
+- Alergias/intolerancias (checkbox: Gluten, Lactose, Nenhuma, Outro) + campo condicional
 
-Isso nao e o "Modo Desonra" completo (grayscale total), mas uma versao intermediaria que alerta visualmente o usuario antes de chegar ao grayscale.
+### Etapa 8 - Nutricional (Combustivel de Batalha)
+- Nivel de atividade no trabalho (select: Sedentario, Moderado, Ativo)
+- Media de passos diarios / calorias gastas (text)
+- Faz cardio? (select: Sim, Nao) + tempo condicional
+- Quantas refeicoes por dia (select: 1-7)
+- Horario e descricao das refeicoes (textarea)
+- Faixa de calorias atual (select: as 7 opcoes do forms)
+- Ha quanto tempo consome essa faixa (text)
+- Restricoes alimentares (checkbox: Ovolacto, Lacto, Ovo, Vegano, Nao)
+- Frutas preferidas (checkbox: 22 frutas do forms, minimo 5)
+- Suplementos (checkbox: Whey, Creatina, Glutamina, Pre-treino, BCAA, Hipercalorico, Omega3, Beta-Alanina, Cafeina, Multivitaminico, Nenhum, Outro)
+
+### Etapa 9 - Estilo de Vida (Mente e Recuperacao)
+- Horario de dormir e acordar (text)
+- Qualidade do sono (select)
+- Alimentos que quer diariamente na dieta (textarea)
+- Alimentos que nao come (textarea)
+- Litros de agua por dia (select: <1L, 1L, 1.5L, 2L, 2.5L, 3L, 4L+)
+- Toma liquido nas refeicoes? (select: Sim, Nao) + qual
+- Disponibilidade de investimento em dieta (select: Pouco, Medio, Muito)
+- Faixa salarial (select: as 8 faixas do forms, opcional)
+
+### Etapas 10-12 - Quiz, Resultado e Chama (manter como estao)
 
 ---
 
 ## Detalhes Tecnicos
 
-### Arquivos modificados:
-- `src/components/BottomNav.tsx` — trocar icones
-- `src/pages/Dashboard.tsx` — insights por mentor, frases rotativas, estado chama apagada
-- `src/components/ChamaDeVesta.tsx` — suporte visual para chama apagada (prop `isActive`)
+### Arquivo modificado:
+- `src/pages/Onboarding.tsx` — reescrita completa do formulario
 
-### Dependencias: nenhuma nova, usa apenas `lucide-react`, `framer-motion` e `react` ja instalados.
+### O que muda:
+- `Step` type expandido para incluir novas etapas (fotos, objetivo, academia, saude, estilo_vida)
+- `userData` state expandido com todos os novos campos
+- Novos arrays de opcoes para checkboxes (maquinas, doencas, frutas, suplementos)
+- Campos condicionais renderizados com `&&` baseado em valores do state
+- Upload de fotos como `<input type="file">` com preview local (sem backend por enquanto)
+- Etapas longas (maquinas da academia) usam `ScrollArea` para scroll interno
 
-### Estrutura do insight por mentor:
-```text
-aiInsights = [
-  { mentor: "mars", text: "...", icon: Sword, colors: red },
-  { mentor: "ceres", text: "...", icon: Leaf, colors: green },
-  { mentor: "seneca", text: "...", icon: Building2, colors: amber },
-]
-```
+### O que NAO muda:
+- Estetica romana (fontes Cinzel, gradients crimson/gold, marble-texture)
+- Animacoes de transicao entre etapas (framer-motion)
+- Quiz do Oraculo e classes (Gladius, Velite, Centurio)
+- Tela da Chama de Vesta final
+- Estrutura geral do componente (steps array, stepper visual, botoes de avancar)
 
-### Logica da chama apagada:
-```text
-const chamaAtiva = streak > 0;
-
-Se !chamaAtiva:
-  - ChamaDeVesta recebe isActive=false (chama cinza)
-  - Banner de alerta no topo
-  - Stats com opacity reduzida
-  - Botao batalha com animacao mais intensa
-```
+### Dependencias: nenhuma nova necessaria
 
