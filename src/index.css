@@ -51,6 +51,16 @@
     --obsidian: 0 0% 4%;
     --marble: 0 0% 10%;
     --marble-light: 0 0% 14%;
+
+    /* Dishonor / Chama Apagada tokens — cold psychology */
+    --dishonor-bg: 260 20% 6%;
+    --dishonor-card: 260 15% 10%;
+    --dishonor-border: 260 12% 18%;
+    --dishonor-muted: 260 8% 35%;
+    --dishonor-accent: 270 40% 45%;
+    --dishonor-glow: 270 50% 55%;
+    --dishonor-alert: 0 70% 45%;
+    --dishonor-frost: 220 30% 50%;
   }
 }
 
