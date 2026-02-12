@@ -64,7 +64,7 @@ const AuthPage = ({ onAuth }: AuthPageProps) => {
               transition={{ delay: 0.4 }}
               className="font-cinzel text-4xl md:text-5xl font-bold text-foreground text-center tracking-wide mb-2"
             >
-              <span className="gold-text-gradient">INSANO</span>
+              <span className="gold-text-gradient">SHAPE INSANO</span>
             </motion.h1>
 
             <motion.p

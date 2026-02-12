@@ -13,7 +13,7 @@ const InsanoLogo = ({ size = 40, className = "" }: InsanoLogoProps) => {
     >
       <img
         src={insanoLogo}
-        alt="INSANO"
+        alt="SHAPE INSANO"
         className="w-full h-full object-cover"
       />
     </div>
