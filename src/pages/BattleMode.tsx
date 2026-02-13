@@ -19,12 +19,35 @@ interface Exercise {
   sets: ExerciseSet[];
 }
 
+// Mock history: last session weights (future: fetch from DB)
+const lastSessionHistory: Record<string, { weight: number; reps: number }[]> = {
+  "Supino Inclinado": [{ weight: 40, reps: 10 }, { weight: 40, reps: 10 }, { weight: 42, reps: 9 }, { weight: 42, reps: 8 }],
+  "Remada Curvada": [{ weight: 35, reps: 10 }, { weight: 35, reps: 10 }, { weight: 37, reps: 9 }, { weight: 37, reps: 9 }],
+  "Desenvolvimento Militar": [{ weight: 20, reps: 12 }, { weight: 20, reps: 12 }, { weight: 22, reps: 10 }],
+  "Agachamento": [{ weight: 60, reps: 8 }, { weight: 60, reps: 8 }, { weight: 65, reps: 7 }, { weight: 65, reps: 6 }],
+  "Barra Fixa": [{ weight: 0, reps: 8 }, { weight: 0, reps: 7 }, { weight: 0, reps: 6 }],
+};
+
+const buildExercise = (name: string, numSets: number, targetReps: number, videoUrl: string | null): Exercise => {
+  const history = lastSessionHistory[name] || [];
+  return {
+    name,
+    videoUrl,
+    sets: Array(numSets).fill(null).map((_, i) => ({
+      targetReps,
+      actualReps: history[i]?.reps ?? null,
+      weight: history[i]?.weight ?? null,
+      done: false,
+    })),
+  };
+};
+
 const initialExercises: Exercise[] = [
-  { name: "Supino Inclinado", videoUrl: null, sets: Array(4).fill(null).map(() => ({ targetReps: 10, actualReps: null, weight: null, done: false })) },
-  { name: "Remada Curvada", videoUrl: null, sets: Array(4).fill(null).map(() => ({ targetReps: 10, actualReps: null, weight: null, done: false })) },
-  { name: "Desenvolvimento Militar", videoUrl: null, sets: Array(3).fill(null).map(() => ({ targetReps: 12, actualReps: null, weight: null, done: false })) },
-  { name: "Agachamento", videoUrl: null, sets: Array(4).fill(null).map(() => ({ targetReps: 8, actualReps: null, weight: null, done: false })) },
-  { name: "Barra Fixa", videoUrl: null, sets: Array(3).fill(null).map(() => ({ targetReps: 8, actualReps: null, weight: null, done: false })) },
+  buildExercise("Supino Inclinado", 4, 10, "https://example.com/supino-inclinado"),
+  buildExercise("Remada Curvada", 4, 10, "https://example.com/remada-curvada"),
+  buildExercise("Desenvolvimento Militar", 3, 12, "https://example.com/desenvolvimento-militar"),
+  buildExercise("Agachamento", 4, 8, "https://example.com/agachamento"),
+  buildExercise("Barra Fixa", 3, 8, "https://example.com/barra-fixa"),
 ];
 
 const BattleMode = () => {
