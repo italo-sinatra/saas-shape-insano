@@ -1,24 +1,21 @@
 
 
-## Timeout no AuthContext para evitar tela de loading infinita
+## Remover timeout e mensagens de problemas de conexao
 
-### Problema
-Quando o backend demora ou falha para responder, o app fica preso na tela de loading para sempre.
+### O que sera feito
 
-### Solucao
-Adicionar um timeout de 5 segundos no `AuthContext`. Se o backend nao responder nesse tempo, o `loading` sera forçado para `false`, permitindo que o usuario veja a tela de login.
-
-Alem disso, adicionar uma mensagem amigavel na tela de loading que aparece apos 3 segundos, informando que esta demorando, e um botao de "Tentar novamente" apos o timeout.
+Remover o mecanismo de timeout de 5 segundos e as mensagens de "problemas de conexao" que foram adicionados recentemente.
 
 ### Detalhes tecnicos
 
 **Arquivo: `src/contexts/AuthContext.tsx`**
-- Adicionar um `setTimeout` de 5 segundos no `useEffect` que inicializa a sessao
-- Se apos 5s o `loading` ainda for `true`, forçar `loading = false`
-- Limpar o timeout quando a sessao resolver normalmente
+- Remover o `setTimeout` de 5 segundos e toda a logica de `resolved`/`markResolved`
+- Manter apenas o fluxo normal: listener `onAuthStateChange` + `getSession()` inicial
+- O loading so sera `false` quando o backend responder naturalmente
 
-**Arquivo: `src/App.tsx` (LoadingScreen)**
-- Adicionar estado para controlar exibicao de mensagem de "demora"
-- Apos 3 segundos, mostrar texto: "Isso esta demorando mais que o normal..."
-- Apos 5 segundos, mostrar botao "Tentar novamente" que recarrega a pagina
+**Arquivo: `src/App.tsx`**
+- Simplificar o `LoadingScreen`: remover os estados `slow` e `timedOut`
+- Remover os timers e as mensagens "Isso esta demorando..." e "Problemas de conexao detectados"
+- Remover o botao "Tentar novamente"
+- Manter apenas o logo animado como tela de loading
 
