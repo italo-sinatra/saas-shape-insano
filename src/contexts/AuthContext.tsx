@@ -31,9 +31,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let resolved = false;
 
     // Timeout: force loading=false after 5s
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
       if (!resolved) {
         resolved = true;
+        // If user is already set but onboarded wasn't checked, try one last time
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession?.user) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("onboarded")
+            .eq("id", currentSession.user.id)
+            .maybeSingle();
+          setOnboarded(data?.onboarded ?? false);
+          setUser(currentSession.user);
+          setSession(currentSession);
+        }
         setLoading(false);
       }
     }, 5000);
