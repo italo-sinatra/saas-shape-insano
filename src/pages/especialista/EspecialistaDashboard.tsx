@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, AlertTriangle, ClipboardCheck, Flame } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Users, AlertTriangle, ClipboardCheck, Flame, Clock, TrendingUp, Timer } from "lucide-react";
 
 const alerts = [
   { name: "Pedro Almeida", issue: "Chama apagada há 7 dias", severity: "high" },
@@ -14,11 +15,19 @@ const pendingReviews = [
   { name: "Gabriel Rocha", type: "Reavaliação mensal", dueIn: "3 dias" },
 ];
 
+const pendingAnamneses = [
+  { name: "Marcus Vinícius", type: "Acompanhamento", submittedAt: "2025-02-12T10:00:00", isFirst: false, hoursLeft: 18 },
+  { name: "Julia Santos", type: "Primeira anamnese", submittedAt: "2025-02-11T14:00:00", isFirst: true, hoursLeft: 42 },
+  { name: "Ana Carolina", type: "Acompanhamento", submittedAt: "2025-02-13T08:00:00", isFirst: false, hoursLeft: 22 },
+];
+
+const slaStats = { delivered: 18, total: 21, percentage: 86 };
+
 const EspecialistaDashboard = () => (
   <div className="space-y-6">
     <div>
       <h1 className="font-cinzel text-2xl font-bold text-foreground">Dashboard do Especialista</h1>
-      <p className="text-sm text-muted-foreground">Visão geral dos seus alunos e pendências</p>
+      <p className="text-sm text-muted-foreground">Visão geral dos seus alunos, SLAs e pendências</p>
     </div>
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -36,6 +45,57 @@ const EspecialistaDashboard = () => (
           </CardContent>
         </Card>
       ))}
+    </div>
+
+    {/* SLA Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <TrendingUp size={14} /> Entregas no Prazo (este mês)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-3 mb-2">
+            <p className="text-3xl font-bold text-foreground">{slaStats.percentage}%</p>
+            <p className="text-sm text-muted-foreground mb-1">{slaStats.delivered}/{slaStats.total} entregas</p>
+          </div>
+          <Progress value={slaStats.percentage} className="h-2" />
+          {slaStats.percentage < 80 && (
+            <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+              <AlertTriangle size={12} /> Abaixo da meta de 80% — risco de Yellow Flag
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Timer size={14} /> Análises para Entregar
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {pendingAnamneses.map((a) => {
+            const urgent = a.hoursLeft <= 6;
+            const warning = a.hoursLeft <= 12;
+            return (
+              <div key={a.name} className={`flex items-center justify-between p-2.5 rounded-lg ${urgent ? "bg-destructive/10 border border-destructive/20" : "bg-secondary/30"}`}>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{a.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{a.type} · SLA: {a.isFirst ? "72h" : "24h"}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock size={12} className={urgent ? "text-destructive" : warning ? "text-amber-400" : "text-muted-foreground"} />
+                  <span className={`text-xs font-bold ${urgent ? "text-destructive" : warning ? "text-amber-400" : "text-foreground"}`}>
+                    {a.hoursLeft}h restantes
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
