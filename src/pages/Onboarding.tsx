@@ -23,15 +23,13 @@ import {
   alergiasOpcoes, frutasOpcoes, suplementosOpcoes, restricoesOpcoes,
   caloriasOpcoes, aguaOpcoes, faixasSalariais,
 } from "./onboarding/constants";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface OnboardingProps {
   onComplete: () => void;
 }
 
 const Onboarding = ({ onComplete }: OnboardingProps) => {
-  const { user } = useAuth();
+  
   const [step, setStep] = useState<Step>("welcome");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
@@ -574,77 +572,13 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={isSubmitting} onClick={async () => {
               setIsSubmitting(true);
               try {
-                if (!user) throw new Error("Usuário não autenticado");
-
-                // 1. Update profile with onboarding data
-                const { error: profileError } = await supabase
-                  .from("profiles")
-                  .update({
-                    nome: userData.nome,
-                    email: userData.email,
-                    telefone: userData.telefone,
-                    nascimento: userData.nascimento,
-                    cpf: userData.cpf,
-                    cidade_estado: userData.cidade_estado,
-                    sexo: userData.sexo,
-                    faixa_etaria: userData.faixa_etaria,
-                    altura: userData.altura,
-                    peso: userData.peso,
-                    tempo_acompanha: userData.tempo_acompanha,
-                    fatores_escolha: userData.fatores_escolha,
-                    indicacao: userData.indicacao,
-                    indicacao_nome: userData.indicacao_nome,
-                    indicacao_telefone: userData.indicacao_telefone,
-                    classe: (resultClass || "gladius") as any,
-                    onboarded: true,
-                  })
-                  .eq("id", user.id);
-
-                if (profileError) throw profileError;
-
-                // 2. Save anamnese details
-                const { error: anamneseError } = await supabase
-                  .from("anamnese")
-                  .insert({
-                    user_id: user.id,
-                    objetivo: userData.objetivo || userData.objetivo_outro,
-                    experiencia_treino: userData.pratica_musculacao,
-                    frequencia_treino: userData.frequencia,
-                    local_treino: userData.local_treino,
-                    equipamentos: userData.maquinas_casa,
-                    lesoes: userData.descricao_dor,
-                    medicamentos: userData.medicamentos,
-                    condicoes_saude: (userData.doencas || []).join(", "),
-                    dieta_atual: userData.calorias,
-                    restricoes_alimentares: (userData.restricoes || []).join(", "),
-                    suplementos: (userData.suplementos || []).join(", "),
-                    agua_diaria: userData.agua,
-                    sono_horas: userData.horario_sono,
-                    nivel_estresse: userData.qualidade_sono,
-                    ocupacao: userData.faixa_salarial,
-                    disponibilidade_treino: (userData.dias_semana || []).join(", "),
-                    motivacao: userData.fatores_escolha,
-                    dados_extras: {
-                      fisiculturismo: userData.fisiculturismo,
-                      influenciador_favorito: userData.influenciador_favorito,
-                      grupos_prioritarios: userData.grupos_prioritarios,
-                      alimentos_diarios: userData.alimentos_diarios,
-                      alimentos_nao_come: userData.alimentos_nao_come,
-                      frutas: userData.frutas,
-                      nivel_atividade: userData.nivel_atividade,
-                      media_passos: userData.media_passos,
-                    },
-                  } as any);
-
-                if (anamneseError) console.error("Anamnese error:", anamneseError);
-
-                // 3. Keep Google Sheets webhook (backup)
+                // Send to Google Sheets (backup)
                 const result = await submitAnamnese(userData, resultClass || "indefinido");
                 if (result.success) {
                   toast.success("Dados salvos com sucesso!");
                 } else {
                   console.warn("Webhook falhou:", result.error);
-                  toast.success("Dados salvos no banco!");
+                  toast.success("Ritual completo!");
                 }
               } catch (err: any) {
                 console.error("Erro:", err);
