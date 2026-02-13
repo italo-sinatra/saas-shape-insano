@@ -139,10 +139,14 @@ const Dashboard = () => {
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [mentalState, setMentalState] = useState<MentalState>("focado");
 
-  // Show check-in once per session
+  // Show check-in once per session (clear to re-test)
   const [checkedIn, setCheckedIn] = useState(() => {
+    // DEV: uncomment next line to always show check-in
+    // return false;
     const today = new Date().toDateString();
-    return localStorage.getItem("lastCheckIn") === today;
+    if (localStorage.getItem("lastCheckIn") === today) return true;
+    localStorage.removeItem("lastCheckIn"); // reset for new day
+    return false;
   });
 
   useEffect(() => {
