@@ -27,17 +27,7 @@ import EspecialistaAlunos from "./pages/especialista/EspecialistaAlunos";
 import EspecialistaPlanos from "./pages/especialista/EspecialistaPlanos";
 import EspecialistaChat from "./pages/especialista/EspecialistaChat";
 import EspecialistaPerfil from "./pages/especialista/EspecialistaPerfil";
-import InsanoLogo from "./components/InsanoLogo";
-
 const queryClient = new QueryClient();
-
-const LoadingScreen = () => (
-  <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-    <div className="animate-pulse">
-      <InsanoLogo size={64} />
-    </div>
-  </div>
-);
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -45,7 +35,7 @@ const AppRoutes = () => {
 
   const isServiceRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/especialista");
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return null;
 
   if (!user && !isServiceRoute) {
     return <AuthPage />;
