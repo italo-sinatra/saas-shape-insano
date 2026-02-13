@@ -1,124 +1,86 @@
 
-
-## Plano Completo: Redefinir Dashboard e Funcionalidades Core
-
-Este plano cobre todas as mudancas solicitadas em um unico bloco: toggle da chama, registro de treino detalhado, estado mental, metas/dieta, chat do especialista e definicao dos indicadores da barra superior.
+## Metricas de Especialistas, Anamnese de Acompanhamento e Importacao de Alunos
 
 ---
 
-### 1. Toggle da Chama (dev/preview)
+### 1. Sistema de Flags para Especialistas
 
-Adicionar um botao temporario (visivel apenas em dev) no Dashboard que alterna `chamaAtiva` entre true/false via estado local, permitindo visualizar os dois modos do dashboard sem depender do streak real.
+**Arquivo:** `src/pages/admin/AdminEspecialistas.tsx`
 
-**Arquivo:** `src/pages/Dashboard.tsx`
-- Adicionar `const [forceDishonor, setForceDishonor] = useState(false)` 
-- A variavel `chamaAtiva` passa a ser `streak > 0 && !forceDishonor`
-- Clicar na area da Chama de Vesta (ou no icone de fogo no header) alterna `forceDishonor`
+Adicionar metricas de performance e sistema de flags ao card de cada especialista:
 
----
+**Metricas novas por especialista (mockadas):**
+- Tempo medio de entrega da 1a analise (meta: 72h)
+- Tempo medio de entrega das analises seguintes (meta: 24h)
+- Taxa de entregas no prazo (%)
+- Satisfacao media dos alunos
+- Taxa de retencao de alunos
+- Adesao media dos alunos sob seu cuidado
 
-### 2. Barra Superior - Definicao de cada indicador
+**Sistema de Flags:**
+- **Green** (padrao): Todas as metricas dentro do aceitavel
+- **Yellow Flag**: Quando uma metrica fica abaixo do limite no mes (ex: entregas atrasadas > 20%, satisfacao < 4.0)
+- **Red Flag**: Acumulo de 3 Yellow Flags 
+- **Black Flag**: 1 mes com Red Flag sem melhoria = fora do time
 
-Referencia da imagem: `[coracao] 86/100 | [haltere] HIIT 45min | [fogo] 1.250/2.400 | [cerebro] Focado | [chama] 5 dias | [moeda] 340`
+Cada card de especialista mostra:
+- Contador de flags (Yellow: 0, Red: false, meses em Red: 0)
+- Badge visual colorido com a flag atual
+- Historico de flags dos ultimos 3 meses
 
-| Indicador | O que representa | Fonte dos dados |
-|-----------|-----------------|-----------------|
-| Coracao 86/100 | **Performance Score** - media ponderada de adesao ao treino, progressao de carga e consistencia | Calculado a partir do historico de treinos registrados |
-| Haltere HIIT 45min | **Treino do Dia** - tipo e duracao estimada do treino agendado | Plano de treino gerado pelo especialista/IA |
-| Fogo 1.250/2.400 | **Calorias** - consumidas vs meta diaria | Input manual do aluno (futuro: smartwatch) |
-| Cerebro Focado | **Estado Mental** - mood do dia | Check-in diario + calculo automatico |
-| Chama 5 dias | **Streak** - dias consecutivos de treino | Contagem automatica |
-| Moeda 340 | **Dracmas** - moeda do jogo | Sistema de gamificacao |
-
-**Arquivo:** `src/pages/Dashboard.tsx`
-- Separar a barra superior em componente proprio `StatsBar`
-- Tornar cada indicador clicavel/interativo quando relevante
-
----
-
-### 3. Modo Batalha com Registro Detalhado (serie por serie)
-
-**Arquivo:** `src/pages/BattleMode.tsx` - Reescrever a logica de exercicios
-
-Cada exercicio tera:
-- Lista de series expandivel (ex: 4 series)
-- Para cada serie: campo de **carga (kg)** e **reps realizadas**
-- Botao de confirmar serie (marca como feita)
-- Espaco reservado para **video de execucao** (placeholder com icone de play, futuro: link para video demonstrativo)
-- Treino so completa quando TODAS as series de TODOS os exercicios forem confirmadas
-
-Estrutura de dados:
-
-```text
-exercicio: {
-  name: "Supino Inclinado",
-  videoUrl: null,  // futuro: URL do video demonstrativo
-  sets: [
-    { targetReps: 10, actualReps: null, weight: null, done: false },
-    { targetReps: 10, actualReps: null, weight: null, done: false },
-    ...
-  ]
-}
-```
-
-O score de performance sera calculado a partir desses dados (progressao de carga vs treino anterior).
+**Novo componente:** `src/components/admin/SpecialistMetricsModal.tsx`
+- Modal ao clicar em "Metricas" no card do especialista
+- Graficos de entrega no prazo, satisfacao, retencao
+- Timeline de flags com datas
+- SLAs: 72h primeira anamnese, 24h demais
 
 ---
 
-### 4. Estado Mental - Check-in Diario
+### 2. Anamnese de Acompanhamento (a cada 30 dias)
 
-**Novo arquivo:** `src/components/DailyCheckIn.tsx`
+**Arquivo:** `src/pages/especialista/EspecialistaAlunos.tsx`
+- Adicionar indicador visual de "Anamnese pendente" por aluno (badge amarelo quando faltam <= 5 dias, vermelho quando passou dos 30 dias)
+- Botao "Solicitar Anamnese" por aluno
 
-Modal/drawer que aparece ao abrir o app (1x por dia):
-- 3 perguntas rapidas com emojis/icones:
-  1. "Como voce dormiu?" (ruim / ok / bem / otimo)
-  2. "Como esta sua energia hoje?" (baixa / media / alta)
-  3. "Nivel de estresse?" (alto / medio / baixo)
-- Resultado combinado com dados automaticos (streak, adesao a dieta, frequencia) gera o estado: Focado, Neutro, Cansado, Desanimado, etc.
+**Arquivo:** `src/pages/especialista/EspecialistaDashboard.tsx`
+- Adicionar secao "Anamneses Pendentes" com lista de alunos que precisam da anamnese mensal
+- Mostrar prazo de entrega da analise (72h para primeira, 24h para as demais)
+- Timer visual mostrando quanto tempo falta para o deadline da analise
 
-**Arquivo:** `src/pages/Dashboard.tsx`
-- Exibir o estado calculado no indicador "Mental" da barra superior
-
----
-
-### 5. Metas Diarias + Acesso a Dieta
-
-**Arquivo:** `src/pages/Dashboard.tsx` - Secao "Metas Diarias"
-
-- Metas de proteina, agua, sono, passos continuam como estao
-- Adicionar botao "Ver Dieta Completa" que navega para nova pagina
-- Os dados virao do plano alimentar (mockado por enquanto)
-
-**Novo arquivo:** `src/pages/Dieta.tsx`
-- Exibe o plano alimentar do dia (refeicoes, macros, horarios)
-- Dados mockados inicialmente (futuro: gerado por IA ou especialista)
-- Rota: `/dieta`
+**No lado do aluno (futuro):** O aluno receberia uma notificacao/card no Dashboard pedindo para preencher a anamnese mensal. Por enquanto, mockamos o estado como se ja tivesse sido preenchida.
 
 ---
 
-### 6. Chat do Especialista - Toggle Agente IA
+### 3. Importacao de Alunos Existentes
 
-**Arquivo:** `src/pages/especialista/EspecialistaChat.tsx`
+**Novo arquivo:** `src/pages/admin/AdminImportarAlunos.tsx`
+- Pagina dedicada para importar alunos de base existente
+- Formulario completo com todos os campos do perfil (dados pessoais, fisico, nutricional, psicologico)
+- Opcao de preencher individualmente OU importar via CSV/planilha
+- Ao importar, o aluno ja entra com onboarding completo (skip da anamnese inicial)
+- Atribuicao de especialista durante a importacao
 
-- Adicionar botao toggle no header do chat: "Agente IA" liga/desliga
-- Quando ligado: IA pode sugerir respostas automaticas ao especialista
-- Quando desligado: chat puro humano sem interferencia
-- Visual: switch com icone de robo/cerebro
-- Estado inicial: desligado (humano por padrao)
+**Arquivo:** `src/components/admin/AdminLayout.tsx`
+- Adicionar item "Importar Alunos" no menu lateral
+
+**Arquivo:** `src/App.tsx`
+- Adicionar rota `/admin/importar`
+
+**Arquivo:** `src/pages/admin/AdminUsuarios.tsx`
+- Expandir o dialog "Nova Conta" para incluir mais campos alem de nome/email/senha
+- Campos adicionais: telefone, nascimento, peso, altura, objetivo, experiencia, local de treino, especialista atribuido
+- Toggle "Pular onboarding" que marca o aluno como ja onboardado
 
 ---
 
-### 7. Volume Semanal
+### 4. Metricas de SLA no Dashboard do Especialista
 
-**Arquivo:** `src/pages/Dashboard.tsx` - Secao "Volume Semanal"
+**Arquivo:** `src/pages/especialista/EspecialistaDashboard.tsx`
 
-Volume = soma de (carga x reps x series) de todos os exercicios da semana. Com o registro detalhado do Modo Batalha (item 3), esses dados passam a existir. Por enquanto, manter mockado mas com a formula correta para quando os dados reais estiverem disponiveis.
-
----
-
-### 8. Calorias
-
-O indicador de calorias (1.250/2.400) fica como input manual por enquanto. Adicionar campo simples na secao de metas diarias para o aluno registrar calorias consumidas. No futuro, integrar com smartwatch.
+Adicionar cards de SLA:
+- "Analises para entregar" com countdown (72h ou 24h conforme o caso)
+- "Entregas no prazo este mes: X/Y (Z%)"
+- Alerta visual quando esta perto de estourar um prazo
 
 ---
 
@@ -126,17 +88,17 @@ O indicador de calorias (1.250/2.400) fica como input manual por enquanto. Adici
 
 | Arquivo | Mudanca |
 |---------|---------|
-| `src/pages/Dashboard.tsx` | Toggle chama, barra superior refatorada, link dieta, check-in |
-| `src/pages/BattleMode.tsx` | Registro serie por serie com carga/reps + placeholder video |
-| `src/components/DailyCheckIn.tsx` | **Novo** - modal de check-in diario |
-| `src/pages/Dieta.tsx` | **Novo** - pagina de dieta |
-| `src/pages/especialista/EspecialistaChat.tsx` | Toggle agente IA |
-| `src/App.tsx` | Nova rota `/dieta` |
+| `src/pages/admin/AdminEspecialistas.tsx` | Metricas de performance + sistema de flags |
+| `src/components/admin/SpecialistMetricsModal.tsx` | **Novo** - modal com metricas detalhadas |
+| `src/pages/admin/AdminImportarAlunos.tsx` | **Novo** - importacao de alunos existentes |
+| `src/pages/admin/AdminUsuarios.tsx` | Expandir formulario de criacao de conta |
+| `src/components/admin/AdminLayout.tsx` | Nova rota no menu lateral |
+| `src/App.tsx` | Rota `/admin/importar` |
+| `src/pages/especialista/EspecialistaDashboard.tsx` | SLAs, anamneses pendentes, deadlines |
+| `src/pages/especialista/EspecialistaAlunos.tsx` | Indicador de anamnese + botao solicitar |
 
 ### O que NAO muda
-- Tema visual, cores, fontes, animacoes existentes
-- Estrutura de rotas e navegacao principal
-- Hooks mockados (useGamification, useProfile)
-- Componente ChamaDeVesta
-- Paginas admin
-
+- Tema visual, cores, fontes
+- Dashboard do aluno, BattleMode, Dieta
+- Hooks mockados, AuthContext
+- Componentes UI base
