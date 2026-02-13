@@ -1,28 +1,24 @@
 
-# Ativar conta italogusta242@gmail.com sem triagem
 
-## Problema
-A conta foi criada mas o email nao foi confirmado automaticamente (email_confirmed_at = null), impedindo o login. Alem disso, o campo `onboarded` esta como `false`.
+## Timeout no AuthContext para evitar tela de loading infinita
 
-## Solucao
-Executar uma migracao SQL para:
-1. Confirmar o email do usuario (atualizar `email_confirmed_at` na tabela `auth.users`)
-2. Marcar `onboarded = true` na tabela `profiles`
-3. Preencher dados basicos no perfil (nome)
+### Problema
+Quando o backend demora ou falha para responder, o app fica preso na tela de loading para sempre.
 
-### SQL a executar:
-```sql
--- Confirmar email
-UPDATE auth.users 
-SET email_confirmed_at = now(), 
-    updated_at = now()
-WHERE email = 'italogusta242@gmail.com';
+### Solucao
+Adicionar um timeout de 5 segundos no `AuthContext`. Se o backend nao responder nesse tempo, o `loading` sera forçado para `false`, permitindo que o usuario veja a tela de login.
 
--- Marcar como onboarded e preencher nome
-UPDATE public.profiles 
-SET onboarded = true, 
-    nome = 'Italo Gusta'
-WHERE id = 'b7bb9a75-634f-4429-836a-5e32964a2c7b';
-```
+Alem disso, adicionar uma mensagem amigavel na tela de loading que aparece apos 3 segundos, informando que esta demorando, e um botao de "Tentar novamente" apos o timeout.
 
-Apos a migracao, o usuario podera fazer login com `italogusta242@gmail.com` / `Wall9969` e ira direto para o Dashboard, sem passar pelo onboarding.
+### Detalhes tecnicos
+
+**Arquivo: `src/contexts/AuthContext.tsx`**
+- Adicionar um `setTimeout` de 5 segundos no `useEffect` que inicializa a sessao
+- Se apos 5s o `loading` ainda for `true`, forçar `loading = false`
+- Limpar o timeout quando a sessao resolver normalmente
+
+**Arquivo: `src/App.tsx` (LoadingScreen)**
+- Adicionar estado para controlar exibicao de mensagem de "demora"
+- Apos 3 segundos, mostrar texto: "Isso esta demorando mais que o normal..."
+- Apos 5 segundos, mostrar botao "Tentar novamente" que recarrega a pagina
+
