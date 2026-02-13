@@ -35,7 +35,7 @@ const AppRoutes = () => {
 
   const isServiceRoute = location.pathname.startsWith("/admin") || location.pathname.startsWith("/especialista");
 
-  if (loading) return null;
+  if (loading) return <AuthPage />;
 
   if (!user && !isServiceRoute) {
     return <AuthPage />;
