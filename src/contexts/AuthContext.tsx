@@ -28,35 +28,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [onboarded, setOnboarded] = useState(false);
 
   useEffect(() => {
-    let resolved = false;
-
-    // Timeout: force loading=false after 5s
-    const timeout = setTimeout(async () => {
-      if (!resolved) {
-        resolved = true;
-        // If user is already set but onboarded wasn't checked, try one last time
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession?.user) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("onboarded")
-            .eq("id", currentSession.user.id)
-            .maybeSingle();
-          setOnboarded(data?.onboarded ?? false);
-          setUser(currentSession.user);
-          setSession(currentSession);
-        }
-        setLoading(false);
-      }
-    }, 5000);
-
-    const markResolved = () => {
-      if (!resolved) {
-        resolved = true;
-        clearTimeout(timeout);
-      }
-    };
-
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
@@ -73,7 +44,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setOnboarded(false);
         }
-        markResolved();
         setLoading(false);
       }
     );
@@ -90,18 +60,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .maybeSingle()
           .then(({ data }) => {
             setOnboarded(data?.onboarded ?? false);
-            markResolved();
             setLoading(false);
           });
       } else {
-        markResolved();
         setLoading(false);
       }
     });
 
     return () => {
       subscription.unsubscribe();
-      clearTimeout(timeout);
     };
   }, []);
 
