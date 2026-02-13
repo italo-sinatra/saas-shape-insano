@@ -9,6 +9,7 @@ import {
   MessageSquare,
   ChevronLeft,
   Menu,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import InsanoLogo from "@/components/InsanoLogo";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { title: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { title: "Usuários", path: "/admin/usuarios", icon: Users },
+  { title: "Importar Alunos", path: "/admin/importar", icon: UserPlus },
   { title: "Planos", path: "/admin/planos", icon: ClipboardEdit },
   { title: "Especialistas", path: "/admin/especialistas", icon: UserCog },
   { title: "Comunicação", path: "/admin/comunicacao", icon: MessageSquare },

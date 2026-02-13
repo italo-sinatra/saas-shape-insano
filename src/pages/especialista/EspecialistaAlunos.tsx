@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { Search, Flame, ChevronDown, ChevronUp, User, Dumbbell, Apple, Brain, Shield } from "lucide-react";
+import { Search, Flame, User, Dumbbell, Apple, Brain, Shield, ClipboardCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const mockAlunos = [
   {
     id: 1, name: "Marcus Vinícius", email: "marcus@email.com", league: "Pretorianos", xp: 17500, flame: 95, streak: 42, class: "Gladius", status: "ativo",
+    lastAnamnese: "2025-01-20", daysUntilAnamnese: 7,
     cadastro: { telefone: "(11) 98765-4321", nascimento: "1995-03-15", genero: "Masculino" },
     fisico: { peso: "82kg", altura: "178cm", objetivo: "Ganhar massa", experiencia: "Avançado", frequencia: "6-7x", lesoes: "Nenhuma", esporte: "Musculação" },
     nutricional: { restricoes: ["Sem Lactose"], refeicoes: "5-6", suplementos: "Whey, Creatina, BCAA", hidratacao: "2-3L", alcool: "Nunca" },
@@ -17,6 +18,7 @@ const mockAlunos = [
   },
   {
     id: 2, name: "Julia Santos", email: "julia@email.com", league: "Legionários", xp: 12300, flame: 45, streak: 12, class: "Centurio", status: "alerta",
+    lastAnamnese: "2025-01-10", daysUntilAnamnese: -3,
     cadastro: { telefone: "(21) 99876-5432", nascimento: "1998-07-22", genero: "Feminino" },
     fisico: { peso: "65kg", altura: "165cm", objetivo: "Performance", experiencia: "Intermediário", frequencia: "4-5x", lesoes: "Tendinite no ombro direito", esporte: "CrossFit" },
     nutricional: { restricoes: ["Vegetariana", "Sem Glúten"], refeicoes: "3-4", suplementos: "Whey vegano", hidratacao: "1-2L", alcool: "Social" },
@@ -24,6 +26,7 @@ const mockAlunos = [
   },
   {
     id: 3, name: "Pedro Almeida", email: "pedro@email.com", league: "Plebe", xp: 2100, flame: 0, streak: 0, class: "Velite", status: "inativo",
+    lastAnamnese: "2025-01-05", daysUntilAnamnese: -8,
     cadastro: { telefone: "(31) 97654-3210", nascimento: "2000-11-08", genero: "Masculino" },
     fisico: { peso: "72kg", altura: "175cm", objetivo: "Perder peso", experiencia: "Iniciante", frequencia: "2-3x", lesoes: "Hérnia de disco L4-L5", esporte: "Nenhum" },
     nutricional: { restricoes: [], refeicoes: "1-2", suplementos: "Nenhum", hidratacao: "Menos de 1L", alcool: "Frequente" },
@@ -54,6 +57,12 @@ const Field = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+const AnamneseBadge = ({ days }: { days: number }) => {
+  if (days < 0) return <Badge variant="destructive" className="text-[10px]">Atrasada {Math.abs(days)}d</Badge>;
+  if (days <= 5) return <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border-amber-500/30">Em {days}d</Badge>;
+  return <Badge variant="outline" className="text-[10px]">Em {days}d</Badge>;
+};
+
 const EspecialistaAlunos = () => {
   const [search, setSearch] = useState("");
   const filtered = mockAlunos.filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
@@ -62,7 +71,7 @@ const EspecialistaAlunos = () => {
     <div className="space-y-6">
       <div>
         <h1 className="font-cinzel text-2xl font-bold text-foreground">Meus Alunos</h1>
-        <p className="text-sm text-muted-foreground">Visualize o perfil completo de cada guerreiro</p>
+        <p className="text-sm text-muted-foreground">Visualize o perfil completo e acompanhe anamneses</p>
       </div>
 
       <div className="relative">
@@ -84,12 +93,19 @@ const EspecialistaAlunos = () => {
                     <p className="text-xs text-muted-foreground">{aluno.class} · {aluno.league} · XP {aluno.xp.toLocaleString()}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <AnamneseBadge days={aluno.daysUntilAnamnese} />
                   <div className="flex items-center gap-1">
                     <Flame size={14} className={aluno.flame > 50 ? "text-gold" : aluno.flame > 0 ? "text-orange-400" : "text-muted-foreground"} />
                     <span className="text-sm text-foreground">{aluno.flame}%</span>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[aluno.status]}`}>{aluno.status}</span>
+                  <Button
+                    variant="outline" size="sm" className="text-[10px] gap-1 h-7"
+                    onClick={() => toast.success(`Anamnese solicitada para ${aluno.name}`)}
+                  >
+                    <ClipboardCheck size={12} /> Solicitar
+                  </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm" className="text-xs">Ver Resumo</Button>
@@ -102,6 +118,7 @@ const EspecialistaAlunos = () => {
                         <div className="flex gap-2 mt-1">
                           <Badge variant="outline">{aluno.class}</Badge>
                           <Badge variant="outline">{aluno.league}</Badge>
+                          <AnamneseBadge days={aluno.daysUntilAnamnese} />
                           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[aluno.status]}`}>{aluno.status}</span>
                         </div>
                       </DialogHeader>

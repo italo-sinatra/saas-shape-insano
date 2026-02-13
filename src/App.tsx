@@ -22,6 +22,7 @@ import AdminEspecialistas from "./pages/admin/AdminEspecialistas";
 import AdminComunicacao from "./pages/admin/AdminComunicacao";
 import AdminRelatorios from "./pages/admin/AdminRelatorios";
 import AdminConfig from "./pages/admin/AdminConfig";
+import AdminImportarAlunos from "./pages/admin/AdminImportarAlunos";
 import EspecialistaLayout from "./components/especialista/EspecialistaLayout";
 import EspecialistaDashboard from "./pages/especialista/EspecialistaDashboard";
 import EspecialistaAlunos from "./pages/especialista/EspecialistaAlunos";
@@ -60,6 +61,7 @@ const AppRoutes = () => {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/usuarios" element={<AdminUsuarios />} />
         <Route path="/admin/planos" element={<AdminPlanos />} />
+        <Route path="/admin/importar" element={<AdminImportarAlunos />} />
         <Route path="/admin/especialistas" element={<AdminEspecialistas />} />
         <Route path="/admin/comunicacao" element={<AdminComunicacao />} />
         <Route path="/admin/relatorios" element={<AdminRelatorios />} />

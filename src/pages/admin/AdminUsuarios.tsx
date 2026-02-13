@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Search, Filter, Flame, Eye, MessageSquare,
   ChevronDown, ChevronUp, User, Dumbbell, Apple, Brain, Shield, UserPlus,
@@ -75,7 +77,13 @@ const AdminUsuarios = () => {
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [newUser, setNewUser] = useState({ nome: "", email: "", password: "" });
+  const [newUser, setNewUser] = useState({
+    nome: "", email: "", password: "", telefone: "", nascimento: "",
+    peso: "", altura: "", objetivo: "", experiencia: "", localTreino: "",
+    especialista: "", skipOnboarding: false,
+  });
+
+  const setField = (key: string, val: string | boolean) => setNewUser((u) => ({ ...u, [key]: val }));
 
   const filtered = mockUsers.filter(
     (u) => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
@@ -83,12 +91,11 @@ const AdminUsuarios = () => {
 
   const handleCreateUser = async () => {
     if (!newUser.nome || !newUser.email || !newUser.password) {
-      toast.error("Preencha todos os campos");
+      toast.error("Nome, email e senha são obrigatórios");
       return;
     }
-    // MVP: mock create
     toast.success(`Conta criada para ${newUser.nome}! (MVP - sem banco)`);
-    setNewUser({ nome: "", email: "", password: "" });
+    setNewUser({ nome: "", email: "", password: "", telefone: "", nascimento: "", peso: "", altura: "", objetivo: "", experiencia: "", localTreino: "", especialista: "", skipOnboarding: false });
     setCreateOpen(false);
   };
 
@@ -103,22 +110,91 @@ const AdminUsuarios = () => {
           <DialogTrigger asChild>
             <Button className="gap-2"><UserPlus size={16} /> Nova Conta</Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border">
+          <DialogContent className="bg-card border-border max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-cinzel">Criar Conta (sem triagem)</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-2">
-              <div className="space-y-2">
-                <Label>Nome completo</Label>
-                <Input placeholder="Ex: Marcus Vinícius" value={newUser.nome} onChange={(e) => setNewUser({ ...newUser, nome: e.target.value })} className="bg-background border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Nome completo *</Label>
+                  <Input placeholder="Ex: Marcus Vinícius" value={newUser.nome} onChange={(e) => setField("nome", e.target.value)} className="bg-background border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Email *</Label>
+                  <Input type="email" placeholder="email@exemplo.com" value={newUser.email} onChange={(e) => setField("email", e.target.value)} className="bg-background border-border" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" placeholder="email@exemplo.com" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="bg-background border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Senha *</Label>
+                  <Input type="password" placeholder="Mínimo 6 caracteres" value={newUser.password} onChange={(e) => setField("password", e.target.value)} className="bg-background border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Telefone</Label>
+                  <Input placeholder="(00) 00000-0000" value={newUser.telefone} onChange={(e) => setField("telefone", e.target.value)} className="bg-background border-border" />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Senha</Label>
-                <Input type="password" placeholder="Mínimo 6 caracteres" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="bg-background border-border" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Nascimento</Label>
+                  <Input type="date" value={newUser.nascimento} onChange={(e) => setField("nascimento", e.target.value)} className="bg-background border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Peso (kg)</Label>
+                  <Input placeholder="82" value={newUser.peso} onChange={(e) => setField("peso", e.target.value)} className="bg-background border-border" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Altura (cm)</Label>
+                  <Input placeholder="178" value={newUser.altura} onChange={(e) => setField("altura", e.target.value)} className="bg-background border-border" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Objetivo</Label>
+                  <Select value={newUser.objetivo} onValueChange={(v) => setField("objetivo", v)}>
+                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ganhar_massa">Ganhar massa</SelectItem>
+                      <SelectItem value="perder_peso">Perder peso</SelectItem>
+                      <SelectItem value="performance">Performance</SelectItem>
+                      <SelectItem value="saude">Saúde geral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Experiência</Label>
+                  <Select value={newUser.experiencia} onValueChange={(v) => setField("experiencia", v)}>
+                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="iniciante">Iniciante</SelectItem>
+                      <SelectItem value="intermediario">Intermediário</SelectItem>
+                      <SelectItem value="avancado">Avançado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Local de treino</Label>
+                  <Input placeholder="Academia XYZ" value={newUser.localTreino} onChange={(e) => setField("localTreino", e.target.value)} className="bg-background border-border" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Especialista</Label>
+                <Select value={newUser.especialista} onValueChange={(v) => setField("especialista", v)}>
+                  <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Atribuir especialista" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ana">Dr. Ana Costa</SelectItem>
+                    <SelectItem value="carlos">Prof. Carlos Silva</SelectItem>
+                    <SelectItem value="maria">Dra. Maria Oliveira</SelectItem>
+                    <SelectItem value="ricardo">Prof. Ricardo Pinto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                <Switch checked={newUser.skipOnboarding} onCheckedChange={(v) => setField("skipOnboarding", v)} />
+                <Label className="text-xs">Pular onboarding (aluno já tem dados)</Label>
               </div>
               <Button onClick={handleCreateUser} disabled={creating} className="w-full">
                 {creating ? "Criando..." : "Criar Conta"}
