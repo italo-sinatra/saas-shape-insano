@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Swords, Timer, ArrowLeft, Check, Flame, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAddXpAndDracmas } from "@/hooks/useGamification";
 import { toast } from "sonner";
 
@@ -17,7 +15,6 @@ const exercises = [
 
 const BattleMode = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const addXpAndDracmas = useAddXpAndDracmas();
   const [timer, setTimer] = useState(0);
   const [running, setRunning] = useState(true);
@@ -49,27 +46,15 @@ const BattleMode = () => {
       setComplete(true);
       setRunning(false);
       
-      // Save workout to DB
-      if (user) {
-        setSaving(true);
-        try {
-          await supabase.from("workouts").insert({
-            user_id: user.id,
-            started_at: startedAt,
-            finished_at: new Date().toISOString(),
-            duration_seconds: timer,
-            exercises: updated.map((e) => ({ name: e.name, sets: e.sets, reps: e.reps })) as any,
-            xp_earned: xpReward,
-            dracmas_earned: dracmasReward,
-          } as any);
-
-          await addXpAndDracmas.mutateAsync({ xp: xpReward, dracmas: dracmasReward });
-          toast.success("Batalha registrada!");
-        } catch (err) {
-          console.error("Erro ao salvar batalha:", err);
-        } finally {
-          setSaving(false);
-        }
+      // MVP: no DB save, just reward
+      setSaving(true);
+      try {
+        await addXpAndDracmas.mutateAsync({ xp: xpReward, dracmas: dracmasReward });
+        toast.success("Batalha registrada!");
+      } catch (err) {
+        console.error("Erro ao salvar batalha:", err);
+      } finally {
+        setSaving(false);
       }
     }
   };

@@ -10,7 +10,6 @@ import {
   Search, Filter, Flame, Eye, MessageSquare,
   ChevronDown, ChevronUp, User, Dumbbell, Apple, Brain, Shield, UserPlus,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const mockUsers = [
@@ -87,24 +86,10 @@ const AdminUsuarios = () => {
       toast.error("Preencha todos os campos");
       return;
     }
-    setCreating(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke("admin-create-user", {
-        body: { email: newUser.email, password: newUser.password, nome: newUser.nome },
-      });
-      if (res.error || res.data?.error) {
-        toast.error(res.data?.error || res.error?.message || "Erro ao criar conta");
-      } else {
-        toast.success(`Conta criada para ${newUser.nome}!`);
-        setNewUser({ nome: "", email: "", password: "" });
-        setCreateOpen(false);
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Erro inesperado");
-    } finally {
-      setCreating(false);
-    }
+    // MVP: mock create
+    toast.success(`Conta criada para ${newUser.nome}! (MVP - sem banco)`);
+    setNewUser({ nome: "", email: "", password: "" });
+    setCreateOpen(false);
   };
 
   return (
