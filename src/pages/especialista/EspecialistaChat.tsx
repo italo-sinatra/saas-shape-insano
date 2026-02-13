@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Send, User } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Send, User, Bot } from "lucide-react";
 
 const conversations = [
   { id: 1, name: "Marcus Vinícius", class: "Gladius", lastMessage: "Beleza, vou seguir o plano!", time: "10:32", unread: 0 },
@@ -22,6 +24,7 @@ const mockMessages = [
 const EspecialistaChat = () => {
   const [selected, setSelected] = useState(2);
   const [msg, setMsg] = useState("");
+  const [aiAgent, setAiAgent] = useState(false);
 
   const selectedConv = conversations.find((c) => c.id === selected);
 
@@ -59,9 +62,18 @@ const EspecialistaChat = () => {
         {/* Chat area */}
         <Card className="bg-card border-border lg:col-span-2 flex flex-col overflow-hidden">
           <CardHeader className="pb-2 border-b border-border">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              {selectedConv?.name} <Badge variant="outline" className="text-xs">{selectedConv?.class}</Badge>
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                {selectedConv?.name} <Badge variant="outline" className="text-xs">{selectedConv?.class}</Badge>
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Bot size={14} className={aiAgent ? "text-primary" : "text-muted-foreground"} />
+                <Switch checked={aiAgent} onCheckedChange={setAiAgent} className="scale-75" />
+                <Label className="text-[10px] text-muted-foreground cursor-pointer" onClick={() => setAiAgent(!aiAgent)}>
+                  {aiAgent ? "IA Ativa" : "IA Off"}
+                </Label>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto p-4 space-y-3">
             {mockMessages.map((m, i) => (

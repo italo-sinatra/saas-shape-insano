@@ -12,6 +12,7 @@ import Mentores from "./pages/Mentores";
 import Coliseu from "./pages/Coliseu";
 import Perfil from "./pages/Perfil";
 import BattleMode from "./pages/BattleMode";
+import Dieta from "./pages/Dieta";
 import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -54,6 +55,7 @@ const AppRoutes = () => {
         <Route path="/perfil" element={<Perfil />} />
       </Route>
       <Route path="/batalha" element={<BattleMode />} />
+      <Route path="/dieta" element={<Dieta />} />
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/usuarios" element={<AdminUsuarios />} />

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Swords, Users, Coins, Heart, Brain, TrendingUp, Sparkles, Dumbbell, Target, Zap, Calendar, Award, Sword, Leaf, Landmark, AlertTriangle, Skull, ShieldOff } from "lucide-react";
+import { Flame, Swords, Users, Coins, Heart, Brain, TrendingUp, Sparkles, Dumbbell, Target, Zap, Calendar, Award, Sword, Leaf, Landmark, AlertTriangle, Skull, ShieldOff, UtensilsCrossed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ChamaDeVesta from "@/components/ChamaDeVesta";
 import InsanoLogo from "@/components/InsanoLogo";
+import DailyCheckIn, { type MentalState, mentalStateLabels } from "@/components/DailyCheckIn";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart, BarChart, Bar } from "recharts";
 import { useGamification } from "@/hooks/useGamification";
@@ -112,10 +113,10 @@ const dishonorInsights: AiInsight[] = [
 ];
 
 const stats = [
-  { icon: Heart, label: "Health Score", value: "86", sub: "/100", color: "text-primary" },
+  { icon: Heart, label: "Performance", value: "86", sub: "/100", color: "text-primary" },
   { icon: Dumbbell, label: "Treino Hoje", value: "HIIT", sub: "45 min", color: "text-primary" },
   { icon: Flame, label: "Calorias", value: "1.250", sub: "/2.400", color: "text-accent" },
-  { icon: Brain, label: "Mental", value: "Focado", sub: "", color: "text-accent" },
+  { icon: Brain, label: "Mental", value: "---", sub: "", color: "text-accent", dynamic: true },
 ];
 
 const Dashboard = () => {
@@ -129,7 +130,27 @@ const Dashboard = () => {
   const xp = gamification?.xp ?? 0;
   const level = gamification?.level ?? 1;
   const league = gamification?.league ?? "plebe";
-  const chamaAtiva = streak > 0;
+
+  // Dev toggle for dishonor mode
+  const [forceDishonor, setForceDishonor] = useState(false);
+  const chamaAtiva = streak > 0 && !forceDishonor;
+
+  // Daily check-in
+  const [showCheckIn, setShowCheckIn] = useState(false);
+  const [mentalState, setMentalState] = useState<MentalState>("focado");
+
+  // Show check-in once per session
+  const [checkedIn, setCheckedIn] = useState(() => {
+    const today = new Date().toDateString();
+    return localStorage.getItem("lastCheckIn") === today;
+  });
+
+  useEffect(() => {
+    if (!checkedIn) {
+      const timer = setTimeout(() => setShowCheckIn(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [checkedIn]);
 
   // Choose quotes and insights based on state
   const activeQuotes = chamaAtiva ? stoicQuotes : dishonorQuotes;
@@ -274,12 +295,12 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-3 py-1.5 border ${cardBorder}`}>
+            <button onClick={() => setForceDishonor(!forceDishonor)} className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-3 py-1.5 border ${cardBorder} cursor-pointer hover:opacity-80 transition-opacity`} title="Toggle chama (dev)">
               <Flame size={14} style={{ color: chamaAtiva ? "hsl(var(--primary))" : "hsl(var(--dishonor-muted))" }} />
               <span className="font-cinzel text-xs font-bold" style={{ color: chamaAtiva ? "hsl(var(--foreground))" : "hsl(var(--dishonor-muted))" }}>
                 {streak} dias
               </span>
-            </div>
+            </button>
             <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-3 py-1.5 border ${cardBorder}`}>
               <Coins size={14} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }} />
               <span className="font-cinzel text-xs font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>
@@ -301,7 +322,7 @@ const Dashboard = () => {
             >
               <stat.icon size={16} className={chamaAtiva ? stat.color : ""} style={!chamaAtiva ? { color: "hsl(var(--dishonor-muted))" } : undefined} />
               <p className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--foreground))" : "hsl(var(--dishonor-muted))" }}>
-                {stat.value}
+                {(stat as any).dynamic ? mentalStateLabels[mentalState].label : stat.value}
               </p>
               <p className="text-[10px]" style={{ color: "hsl(var(--muted-foreground))" }}>{stat.sub || stat.label}</p>
             </motion.div>
@@ -412,6 +433,18 @@ const Dashboard = () => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="relative z-10">
           <StoicQuote compact />
         </motion.div>
+
+        {/* Daily Check-In Modal */}
+        <DailyCheckIn
+          open={showCheckIn}
+          onComplete={(state) => {
+            setMentalState(state);
+            setCheckedIn(true);
+            localStorage.setItem("lastCheckIn", new Date().toDateString());
+            setShowCheckIn(false);
+          }}
+          onClose={() => setShowCheckIn(false)}
+        />
       </div>
     );
   }
@@ -449,15 +482,15 @@ const Dashboard = () => {
             <div key={stat.label} className={`flex items-center gap-2 ${cardBg} rounded-lg px-4 py-2 border ${cardBorder} ${dishonoredClass}`}>
               <stat.icon size={16} style={{ color: chamaAtiva ? undefined : "hsl(var(--dishonor-muted))" }} className={chamaAtiva ? stat.color : ""} />
               <div>
-                <p className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--foreground))" : "hsl(var(--dishonor-muted))" }}>{stat.value}</p>
+                <p className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--foreground))" : "hsl(var(--dishonor-muted))" }}>{(stat as any).dynamic ? mentalStateLabels[mentalState].label : stat.value}</p>
                 <p className={`text-[10px] ${textMuted}`}>{stat.sub || stat.label}</p>
               </div>
             </div>
           ))}
-          <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-4 py-2 border ${cardBorder}`}>
+          <button onClick={() => setForceDishonor(!forceDishonor)} className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-4 py-2 border ${cardBorder} cursor-pointer hover:opacity-80 transition-opacity`} title="Toggle chama (dev)">
             <Flame size={16} style={{ color: chamaAtiva ? "hsl(var(--primary))" : "hsl(var(--dishonor-muted))" }} />
             <span className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--foreground))" : "hsl(var(--dishonor-muted))" }}>{streak} dias</span>
-          </div>
+          </button>
           <div className={`flex items-center gap-1.5 ${cardBg} rounded-lg px-4 py-2 border ${cardBorder}`}>
             <Coins size={16} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }} />
             <span className="font-cinzel text-sm font-bold" style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-muted))" }}>{dracmas.toLocaleString()}</span>
@@ -611,12 +644,38 @@ const Dashboard = () => {
             </div>
           </motion.div>
 
+          {/* Ver Dieta Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/dieta")}
+            className={`w-full py-3 ${cardBg} border ${cardBorder} rounded-xl font-cinzel text-sm font-semibold text-foreground flex items-center justify-center gap-2 transition-colors`}
+          >
+            <UtensilsCrossed size={16} style={{ color: chamaAtiva ? "hsl(var(--accent))" : "hsl(var(--dishonor-accent))" }} />
+            VER DIETA COMPLETA
+          </motion.button>
+
           {/* Stoic Quote */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
             <StoicQuote />
           </motion.div>
         </div>
       </div>
+
+      {/* Daily Check-In Modal */}
+      <DailyCheckIn
+        open={showCheckIn}
+        onComplete={(state) => {
+          setMentalState(state);
+          setCheckedIn(true);
+          localStorage.setItem("lastCheckIn", new Date().toDateString());
+          setShowCheckIn(false);
+        }}
+        onClose={() => setShowCheckIn(false)}
+      />
     </div>
   );
 };
