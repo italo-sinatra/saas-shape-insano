@@ -28,6 +28,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [onboarded, setOnboarded] = useState(false);
 
   useEffect(() => {
+    let resolved = false;
+
+    // Timeout: force loading=false after 5s
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        setLoading(false);
+      }
+    }, 5000);
+
+    const markResolved = () => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+      }
+    };
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
@@ -35,7 +52,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Check onboarded status
           const { data } = await supabase
             .from("profiles")
             .select("onboarded")
@@ -45,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setOnboarded(false);
         }
+        markResolved();
         setLoading(false);
       }
     );
@@ -61,14 +78,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .maybeSingle()
           .then(({ data }) => {
             setOnboarded(data?.onboarded ?? false);
+            markResolved();
             setLoading(false);
           });
       } else {
+        markResolved();
         setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, name?: string) => {

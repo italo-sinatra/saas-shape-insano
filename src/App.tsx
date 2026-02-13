@@ -28,16 +28,44 @@ import EspecialistaPlanos from "./pages/especialista/EspecialistaPlanos";
 import EspecialistaChat from "./pages/especialista/EspecialistaChat";
 import EspecialistaPerfil from "./pages/especialista/EspecialistaPerfil";
 import InsanoLogo from "./components/InsanoLogo";
+import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-const LoadingScreen = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="animate-pulse">
-      <InsanoLogo size={64} />
+const LoadingScreen = () => {
+  const [slow, setSlow] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setSlow(true), 3000);
+    const t2 = setTimeout(() => setTimedOut(true), 5000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+      <div className="animate-pulse">
+        <InsanoLogo size={64} />
+      </div>
+      {slow && !timedOut && (
+        <p className="text-muted-foreground text-sm animate-fade-in">
+          Isso está demorando mais que o normal...
+        </p>
+      )}
+      {timedOut && (
+        <div className="flex flex-col items-center gap-2 animate-fade-in">
+          <p className="text-muted-foreground text-sm">Problemas de conexão detectados.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const AppRoutes = () => {
   const location = useLocation();
