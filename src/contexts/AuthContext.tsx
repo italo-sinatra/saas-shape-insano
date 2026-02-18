@@ -28,13 +28,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [onboarded, setOnboarded] = useState(false);
 
   // Fetch onboarded status from profiles
-  const fetchOnboarded = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("onboarded")
-      .eq("id", userId)
-      .maybeSingle();
-    setOnboarded(data?.onboarded ?? false);
+  const fetchOnboarded = async (userId: string): Promise<boolean> => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("onboarded")
+        .eq("id", userId)
+        .maybeSingle();
+      return data?.onboarded ?? false;
+    } catch {
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -47,8 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
         if (newSession?.user) {
-          setTimeout(() => {
-            if (isMounted) fetchOnboarded(newSession.user.id);
+          setTimeout(async () => {
+            if (!isMounted) return;
+            const status = await fetchOnboarded(newSession.user.id);
+            if (isMounted) setOnboarded(status);
           }, 0);
         } else {
           setOnboarded(false);
@@ -64,7 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(existingSession);
         setUser(existingSession?.user ?? null);
         if (existingSession?.user) {
-          await fetchOnboarded(existingSession.user.id);
+          const status = await fetchOnboarded(existingSession.user.id);
+          if (isMounted) setOnboarded(status);
         }
       } finally {
         if (isMounted) setLoading(false);
