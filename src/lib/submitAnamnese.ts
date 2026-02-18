@@ -1,62 +1,87 @@
 import type { UserData } from "@/pages/onboarding/constants";
-
-// URL do Google Apps Script Web App - substitua pela sua URL após publicar o script
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzbNR7eLxtYFtHqv0TigXyqFypKqYYlVK0VzV3aHdoO76Ii6ch2SslwMEK-A7lVEcZXAg/exec";
+import { supabase } from "@/integrations/supabase/client";
 
 export async function submitAnamnese(
   userData: UserData,
-  resultClass: string,
-  webhookUrl?: string
+  resultClass: string
 ): Promise<{ success: boolean; error?: string }> {
-  const url = webhookUrl || WEBHOOK_URL;
-
-  // Se não há URL configurada, apenas loga no console
-  if (!url) {
-    console.log("⚠️ Webhook URL não configurada. Dados da anamnese:", serializeUserData(userData, resultClass));
-    return { success: true };
-  }
-
   try {
-    const payload = serializeUserData(userData, resultClass);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Usuário não autenticado" };
 
-    await fetch(url, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(payload),
-    });
+    // 1. Update profile with onboarding data
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        nome: userData.nome,
+        email: userData.email,
+        telefone: userData.telefone,
+        nascimento: userData.nascimento,
+        cpf: userData.cpf,
+        cidade_estado: userData.cidade_estado,
+        sexo: userData.sexo,
+        faixa_etaria: userData.faixa_etaria,
+        altura: userData.altura,
+        peso: userData.peso,
+        tempo_acompanha: userData.tempo_acompanha,
+        fatores_escolha: userData.fatores_escolha,
+        indicacao: userData.indicacao,
+        indicacao_nome: userData.indicacao_nome,
+        indicacao_telefone: userData.indicacao_telefone,
+        classe: resultClass as any,
+        onboarded: true,
+      })
+      .eq("id", user.id);
 
-    // Com mode: "no-cors" não temos acesso à resposta real,
-    // mas se não houve exceção, consideramos sucesso
+    if (profileError) throw profileError;
+
+    // 2. Insert anamnese with all extra data
+    const dadosExtras: Record<string, any> = {};
+    const skipKeys = new Set([
+      "nome", "email", "telefone", "nascimento", "cpf", "cidade_estado",
+      "sexo", "faixa_etaria", "altura", "peso", "tempo_acompanha",
+      "fatores_escolha", "indicacao", "indicacao_nome", "indicacao_telefone",
+    ]);
+
+    for (const [key, value] of Object.entries(userData)) {
+      if (skipKeys.has(key)) continue;
+      if (value === null || value === undefined || value === "") continue;
+      if (value instanceof File) continue;
+      dadosExtras[key] = value;
+    }
+
+    const { error: anamneseError } = await supabase
+      .from("anamnese")
+      .insert({
+        user_id: user.id,
+        objetivo: userData.objetivo || userData.objetivo_outro || null,
+        local_treino: userData.local_treino || null,
+        frequencia_treino: userData.frequencia || null,
+        experiencia_treino: userData.pratica_musculacao || null,
+        equipamentos: userData.maquinas_casa || null,
+        lesoes: userData.tem_dor === "sim" ? userData.descricao_dor : null,
+        condicoes_saude: userData.doencas?.join(", ") || null,
+        medicamentos: userData.medicamentos || null,
+        restricoes_alimentares: userData.restricoes?.join(", ") || null,
+        dieta_atual: userData.calorias || null,
+        suplementos: userData.suplementos?.join(", ") || null,
+        agua_diaria: userData.agua || null,
+        sono_horas: userData.horario_sono || null,
+        nivel_estresse: userData.qualidade_sono || null,
+        ocupacao: null,
+        disponibilidade_treino: userData.dias_semana?.join(", ") || null,
+        motivacao: userData.fatores_escolha || null,
+        dados_extras: dadosExtras,
+      });
+
+    if (anamneseError) throw anamneseError;
+
     return { success: true };
-  } catch (error) {
-    console.error("Erro ao enviar anamnese:", error);
+  } catch (error: any) {
+    console.error("Erro ao salvar anamnese:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error.message || "Erro desconhecido",
     };
   }
-}
-
-function serializeUserData(
-  userData: UserData,
-  resultClass: string
-): Record<string, string> {
-  const data: Record<string, string> = {
-    data_envio: new Date().toLocaleString("pt-BR"),
-    classe_oraculo: resultClass.toUpperCase(),
-  };
-
-  for (const [key, value] of Object.entries(userData)) {
-    if (value === null || value === undefined) continue;
-    if (value instanceof File) continue; // Ignora arquivos binários
-
-    if (Array.isArray(value)) {
-      data[key] = value.join(", ");
-    } else {
-      data[key] = String(value);
-    }
-  }
-
-  return data;
 }
