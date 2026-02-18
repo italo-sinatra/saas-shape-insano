@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Flame, ChevronRight, User, Dumbbell, Apple, Brain, Camera, Target, Building2, HeartPulse, Coffee } from "lucide-react";
 import { submitAnamnese } from "@/lib/submitAnamnese";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import InsanoLogo from "@/components/InsanoLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,7 @@ interface OnboardingProps {
 }
 
 const Onboarding = ({ onComplete }: OnboardingProps) => {
-  
+  const { setOnboarded } = useAuth();
   const [step, setStep] = useState<Step>("welcome");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
@@ -572,20 +573,19 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} disabled={isSubmitting} onClick={async () => {
               setIsSubmitting(true);
               try {
-                // Send to Google Sheets (backup)
-                const result = await submitAnamnese(userData, resultClass || "indefinido");
+                const result = await submitAnamnese(userData, resultClass || "gladius");
                 if (result.success) {
                   toast.success("Dados salvos com sucesso!");
+                  setOnboarded(true);
+                  onComplete();
                 } else {
-                  console.warn("Webhook falhou:", result.error);
-                  toast.success("Ritual completo!");
+                  toast.error("Erro ao salvar: " + (result.error || "Tente novamente"));
                 }
               } catch (err: any) {
                 console.error("Erro:", err);
                 toast.error("Erro ao salvar dados: " + (err.message || "Erro desconhecido"));
               } finally {
                 setIsSubmitting(false);
-                onComplete();
               }
             }} className="px-8 py-3 crimson-gradient text-foreground font-cinzel font-bold rounded-lg crimson-shadow tracking-wider disabled:opacity-50">
               {isSubmitting ? "ENVIANDO..." : "ENTRAR NA ARENA"}

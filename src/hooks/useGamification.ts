@@ -1,32 +1,53 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-const MOCK_GAMIFICATION = {
-  user_id: "mock-user-001",
-  xp: 1250,
-  level: 3,
-  league: "legionario" as const,
-  streak: 5,
-  max_streak: 12,
-  dracmas: 340,
-  flame_percent: 72,
-  updated_at: new Date().toISOString(),
-};
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useGamification = () => {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: ["gamification", "mock-user-001"],
-    queryFn: async () => MOCK_GAMIFICATION,
-    staleTime: Infinity,
+    queryKey: ["gamification", user?.id],
+    queryFn: async () => {
+      if (!user) throw new Error("Not authenticated");
+      const { data, error } = await supabase
+        .from("gamification")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
   });
 };
 
 export const useAddXpAndDracmas = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ xp, dracmas }: { xp: number; dracmas: number }) => {
-      // No-op for MVP
-      console.log(`[MVP Mock] +${xp} XP, +${dracmas} Dracmas`);
+      if (!user) throw new Error("Not authenticated");
+      
+      // Get current values
+      const { data: current } = await supabase
+        .from("gamification")
+        .select("xp, dracmas")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!current) throw new Error("Gamification not found");
+
+      const { error } = await supabase
+        .from("gamification")
+        .update({
+          xp: current.xp + xp,
+          dracmas: current.dracmas + dracmas,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gamification"] });
@@ -37,11 +58,14 @@ export const useAddXpAndDracmas = () => {
 export const useLeaderboard = () => {
   return useQuery({
     queryKey: ["leaderboard"],
-    queryFn: async () => [
-      { user_id: "mock-user-001", xp: 1250, level: 3, league: "legionario" as const, streak: 5 },
-      { user_id: "mock-user-002", xp: 3200, level: 7, league: "legionario" as const, streak: 14 },
-      { user_id: "mock-user-003", xp: 8500, level: 17, league: "centuriao" as const, streak: 30 },
-    ],
-    staleTime: Infinity,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("gamification")
+        .select("user_id, xp, level, league, streak")
+        .order("xp", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 };

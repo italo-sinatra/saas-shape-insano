@@ -1,32 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-
-const MOCK_PROFILE = {
-  id: "mock-user-001",
-  nome: "Marcus Aurelius",
-  email: "guerreiro@shapeinsano.com",
-  telefone: "(61) 99999-9999",
-  nascimento: "1995-03-15",
-  cpf: "000.000.000-00",
-  cidade_estado: "Brasília/DF",
-  sexo: "masculino",
-  faixa_etaria: "25-30",
-  altura: "178",
-  peso: "82",
-  classe: "gladius" as const,
-  onboarded: true,
-  created_at: new Date().toISOString(),
-  avatar_url: null,
-  tempo_acompanha: null,
-  fatores_escolha: null,
-  indicacao: null,
-  indicacao_nome: null,
-  indicacao_telefone: null,
-};
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useProfile = () => {
+  const { user } = useAuth();
+
   return useQuery({
-    queryKey: ["profile", "mock-user-001"],
-    queryFn: async () => MOCK_PROFILE,
-    staleTime: Infinity,
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) throw new Error("Not authenticated");
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
   });
 };

@@ -1,13 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-
-interface MockUser {
-  id: string;
-  email: string;
-}
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
-  user: MockUser | null;
-  session: any;
+  user: User | null;
+  session: Session | null;
   loading: boolean;
   onboarded: boolean;
   setOnboarded: (v: boolean) => void;
@@ -24,23 +21,79 @@ export const useAuth = () => {
   return ctx;
 };
 
-const MOCK_USER: MockUser = {
-  id: "mock-user-001",
-  email: "guerreiro@shapeinsano.com",
-};
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [onboarded, setOnboarded] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [onboarded, setOnboarded] = useState(false);
 
-  const signUp = async () => ({ error: null });
-  const signIn = async () => ({ error: null });
-  const signOut = async () => {};
+  // Fetch onboarded status from profiles
+  const fetchOnboarded = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("onboarded")
+      .eq("id", userId)
+      .maybeSingle();
+    setOnboarded(data?.onboarded ?? false);
+  };
+
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        if (newSession?.user) {
+          await fetchOnboarded(newSession.user.id);
+        } else {
+          setOnboarded(false);
+        }
+        setLoading(false);
+      }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      setUser(existingSession?.user ?? null);
+      if (existingSession?.user) {
+        fetchOnboarded(existingSession.user.id);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signUp = async (email: string, password: string, name?: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { nome: name },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    return { error: error?.message ?? null };
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return { error: error?.message ?? null };
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setOnboarded(false);
+  };
 
   return (
     <AuthContext.Provider value={{
-      user: MOCK_USER,
-      session: { user: MOCK_USER },
-      loading: false,
+      user,
+      session,
+      loading,
       onboarded,
       setOnboarded,
       signUp,
